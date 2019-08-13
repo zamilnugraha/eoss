@@ -1,0 +1,128 @@
+img, div, input { behavior: url("css/iepngfix.htc") }
+
+body {
+	margin: 0;
+	padding: 0;
+	background-attachment: fixed;
+	background-color: #FFF;
+	background-image: url(../images/bg.png);
+	background-repeat: repeat-x;
+	background-position: left top;
+}
+
+
+#container {
+	width: 990px;
+	height: 560px;
+	margin: 0 auto;
+	background-image: url(../images/login_bg.png);
+	background-repeat: no-repeat;
+	background-position: left bottom;
+}
+
+#box {
+	width: 500px;
+	height: 180px;
+	float: right;
+	margin-top: 60px;
+	margin-right: 0px;
+	/*background-image: url(../images/login_box.png);*/
+	/*background-color: #FFF;*/
+	background-repeat: no-repeat;
+	background-position: center center;	
+	
+		border-radius: 4px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	box-shadow: 0px 1px 3px rgba(0,0,0,0.7);
+	-webkit-box-shadow: 0px 1px 3px rgba(0,0,0,0.7);
+	-moz-box-shadow: 0px 1px 3px rgba(0,0,0,0.7);
+}
+
+#box .left {
+	width: 40%;
+	margin: 0px;
+	padding-left: 20px;
+	padding-top: 20px;
+	float: left;
+	font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+	font-size: 13px;
+	color: #FFF;
+	text-align: justify;
+}
+
+#box .left .button {
+	cursor: pointer;
+	border: none;
+	color: transparent;
+	text-transform: capitalize;
+	background-color: transparent;
+	background-image: url(../images/signup.png);
+	background-repeat: no-repeat;
+	background-position: center center;
+	width: 77px;
+	height: 21px;
+}
+
+#box .right {
+	width: 45%;
+	margin: 0px;
+	padding-right: 10px;
+	padding-top: 20px;
+	float: right;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	color: #FFF;
+	
+}
+
+#box .right .button {
+	cursor: pointer;
+	border: none;
+	color: transparent;
+	text-transform: capitalize;
+	background-color: transparent;
+	background-image: url(../images/login.png);
+	background-repeat: no-repeat;
+	background-position: center center;
+	width: 76px;
+	height: 21px;
+	float:right;
+}
+
+
+
+/*
+#box .right .button {
+	background-color: #eee;	
+	background: -webkit-gradient(linear,center top, center bottom,color-stop(0%, #eee),color-stop(100%, #fff) );
+	background: -moz-linear-gradient( top, #eee, #fff );
+	border: solid 2px white;
+	padding: 5px;
+	padding-left: 10px;
+	padding-right: 10px;
+	border-radius: 11px;
+
+	cursor: pointer;
+	box-shadow: 0px 1px 3px rgba(0,0,0,1.7);
+	-webkit-box-shadow: 0px 1px 3px rgba(0,0,0,1.7);
+	-moz-box-shadow: 0px 1px 3px rgba(0,0,0,1.7);
+	color: transparent;
+	text-shadow: 0px 1px 1px white;
+	font-size: 10pt;
+
+	font-weight:bold;
+}
+*/
+#box .right .textfield {
+	width: 184px;
+	border: none;
+	background-color: transparent;
+	background-image: url(../images/textfield.png);
+	background-repeat: no-repeat;
+	background-position: left top;
+	color: #FFF;
+	padding-left: 10px;
+	padding-top: 4px;
+	margin: 0px;
+}

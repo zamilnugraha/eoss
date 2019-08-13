@@ -1,0 +1,72 @@
+SELECT m.month_no, m.months, isnull(h.Total,0) as jumlah
+FROM 
+(select * from ITH_MONTH) AS m
+LEFT JOIN
+(SELECT 
+    DATENAME(mm, article.ticket_createdate) AS Months, 
+    DATENAME(yyyy, article.ticket_createdate) AS Years, 
+    COUNT(*) AS Total 
+FROM ith_ticket AS article WHERE DATENAME(yyyy, article.ticket_createdate)='$year'
+AND ticket_createbydep='1'
+GROUP BY 
+    DATENAME(mm, article.ticket_createdate), 
+    DATENAME(yyyy, article.ticket_createdate) ) as h
+ON m.months=h.Months
+ORDER BY m.month_no ASC
+
+============================================================
+
+SELECT m.month_no, m.months, isnull(h.Total,0) as jumlah
+FROM 
+(select * from ITH_MONTH) AS m
+LEFT JOIN
+(SELECT 
+    DATENAME(mm, article.ticket_createdate) AS Months, 
+    DATENAME(yyyy, article.ticket_createdate) AS Years, 
+    COUNT(*) AS Total 
+FROM ith_ticket AS article WHERE DATENAME(yyyy, article.ticket_createdate)='$year'
+AND ticket_createbydep='2'
+GROUP BY 
+    DATENAME(mm, article.ticket_createdate), 
+    DATENAME(yyyy, article.ticket_createdate) ) as h
+ON m.months=h.Months
+ORDER BY m.month_no ASC
+
+===========================================================
+
+SELECT m.month_no, m.months, isnull(h.Total,0) as jumlah
+FROM 
+(select * from ITH_MONTH) AS m
+LEFT JOIN
+(SELECT 
+    DATENAME(mm, article.ticket_createdate) AS Months, 
+    DATENAME(yyyy, article.ticket_createdate) AS Years, 
+    COUNT(*) AS Total 
+FROM ith_ticket AS article WHERE DATENAME(yyyy, article.ticket_createdate)='$year'
+AND ticket_createbydep='3'
+GROUP BY 
+    DATENAME(mm, article.ticket_createdate), 
+    DATENAME(yyyy, article.ticket_createdate) ) as h
+ON m.months=h.Months
+ORDER BY m.month_no ASC
+
+============================================================
+
+SELECT m.month_no, m.months, isnull(h.Total,0) as jumlah
+FROM 
+(select * from ITH_MONTH) AS m
+LEFT JOIN
+(SELECT 
+    DATENAME(mm, article.ticket_createdate) AS Months, 
+    DATENAME(yyyy, article.ticket_createdate) AS Years, 
+    COUNT(*) AS Total 
+FROM ith_ticket AS article WHERE DATENAME(yyyy, article.ticket_createdate)='$year'
+AND ticket_createbydep!='3' 
+GROUP BY 
+    DATENAME(mm, article.ticket_createdate), 
+    DATENAME(yyyy, article.ticket_createdate) ) as h
+ON m.months=h.Months
+ORDER BY m.month_no ASC
+
+==============================================================
+

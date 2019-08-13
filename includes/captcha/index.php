@@ -1,0 +1,1 @@
+<img src="captcha.img.php?nocache=<?php echo md5(time()); ?>" border="0" />

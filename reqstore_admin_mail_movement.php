@@ -1,0 +1,2520 @@
+
+<? 
+			$cone =  mysql_connect('localhost','usrservicedesk','kfc14022');
+					mysql_select_db('servicedesk',$cone);
+					
+	$qCekReffTicket = mysql_query("SELECT ticketreference_id, ticketreferencestatus_id FROM ITH_TICKET_HEADER 
+	WHERE ticket_id = '".$_GET['pid']."'");
+	$rCekReffTicket = mysql_fetch_object($qCekReffTicket);
+	#if($rCekReffTicket->ticketreference_id=='')
+	#if($rCekReffTicket->ticketreferencestatus_id=='1')
+	if(($rCekReffTicket->ticketreferencestatus_id!='1')||($rCekReffTicket->ticketreferencestatus_id==' '))
+	{ 
+
+	/* ########################## REQUEST EQUIPMENT FROM STORE (BUKAN REFERENCE TIKET) ######################## */
+?>
+
+	
+		<!--? if($detailmyticket->statuslaporan_name=='Request Store'){ ?-->
+	<? 
+			$qCekStatusLaporan = mysql_query("SELECT ITH_TICKET_HEADER.statuslaporan_id, ITH_STATUSLAPORAN.statuslaporan_name FROM ITH_TICKET_HEADER
+			JOIN ITH_STATUSLAPORAN ON ITH_TICKET_HEADER.statuslaporan_id = ITH_STATUSLAPORAN.statuslaporan_id
+			WHERE ITH_TICKET_HEADER.ticket_id = '".$_GET['pid']."'");
+			$detailmyticket = mysql_fetch_object($qCekStatusLaporan);
+	?>
+	<? if($detailmyticket->statuslaporan_name=='Request')
+	{ ?>
+		<!--<font color="#ffffff"><b><u>REQUEST EQUIPMENT FROM STORE </u></b></font>-->
+		<? 
+			$qCekStatusKeteranganData = mysql_query("SELECT keterangan FROM ITH_TIPEBARANG_KODE WHERE ticket_id = '".$_GET['pid']."'");
+			$detailmyticketKeteranganData = mysql_fetch_object($qCekStatusKeteranganData);
+		?>
+		<? if($detailmyticketKeteranganData->keterangan=='ADDING REQUEST'){ ?>
+			<font color="#ffffff"><b><u>REQUEST NEW EQUIPMENT FROM STORE </u></b></font>
+		<? }elseif($detailmyticketKeteranganData->keterangan=='REPLACEMENT REQUEST'){ ?>
+			<font color="#ffffff"><b><u>REQUEST EQUIPMENT REPLACEMENT FROM STORE </u></b></font>
+		<? }elseif(($detailmyticketKeteranganData->keterangan!='ADDING REQUEST')||($detailmyticketKeteranganData->keterangan!='REPLACEMENT REQUEST')){ ?>
+			<? 
+				$qCekReqBy = mysql_query("SELECT ITUSR1.user_nik,ITUSR1.user_realname,ITUSR1.userstoregroup_id,
+										ITUSR2.user_nik AS strNik, ITUSR2.user_realname AS strName
+										FROM ITH_TICKET_HEADER 
+										JOIN ITH_USER ITUSR1 ON ITH_TICKET_HEADER.ticket_createby = ITUSR1.user_nik	
+										JOIN ITH_USER ITUSR2 ON ITUSR1.userstoregroup_id = ITUSR2.user_nik	
+										WHERE ITH_TICKET_HEADER.ticket_id = '".$_GET['pid']."'	
+										");
+				$rCekReqBy = mysql_fetch_object($qCekReqBy);						
+			?>
+			<font color="#ffffff"><b><u>REQUEST EQUIPMENT MOVEMENT FROM <?=$rCekReqBy->user_realname?> (STORE : <?=$rCekReqBy->strName?>) </u></b></font>
+		<? } ?>			
+		<font color="#ffffff"><b><u>
+		(
+			
+		<? 
+			$connex = mysql_connect("localhost","usrservicedesk","kfc14022");
+					  mysql_select_db("servicedesk",$connex); //@session_start();	
+			$qvCekDataHeaderEQx = mysql_query("SELECT DISTINCT ITH_TIPEBARANG_KODE.TICKET_ID, ITH_TIPEBARANG_KODE.NO_PERMINTAAN
+											   FROM ITH_TIPEBARANG_KODE 
+											   WHERE ITH_TIPEBARANG_KODE.TICKET_ID  = '".$_GET['pid']."'");		
+			$rvCekDataHeaderEQx = mysql_fetch_object($qvCekDataHeaderEQx);	
+			###echo 'SESSION UNAME : '.$_SESSION['user_realname'];
+			echo 'Request Number : '.$rvCekDataHeaderEQx ->NO_PERMINTAAN;
+		?>	
+		) </u></b></font>
+		
+			<script src="jquery/jquery.min.js"></script>
+			<!--<script>
+				$(document).ready(function()
+				{
+					$("#equipmentsrc").on("keyup", function() 
+					{
+						var value = $(this).val().toLowerCase();
+						$("#myCodes tr").filter(function() 
+						{
+							$(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+						});
+					});
+					$("#smallwaresrc").on("keyup", function() 
+					{
+						var value = $(this).val().toLowerCase();
+						$("#myCodes tr").filter(function() 
+						{
+							$(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+						});
+					});
+					$("#sparepartsrc").on("keyup", function() 
+					{
+						var value = $(this).val().toLowerCase();
+						$("#myCodes tr").filter(function() 
+						{
+							$(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+						});
+					});
+				});
+			</script>-->
+			<style>
+				table.blueTable 
+				{
+					border: 1px solid #1C6EA4; background-color: #EEEEEE; width: 100%;
+					text-align: left; border-collapse: collapse; overflow-x:scroll;height:100px; position:relative;
+				}
+				table.blueTable td, table.blueTable th 
+				{
+					border: 1px solid #AAAAAA; padding: 3px 2px;				  
+				}
+				table.blueTable tbody td { font-size: 13px; }
+				table.blueTable tr:nth-child(even) { background: #D0E4F5; }
+				table.blueTable thead 
+				{ 
+					background: #1C6EA4; background: -moz-linear-gradient(top, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+					background: -webkit-linear-gradient(top, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+					background: linear-gradient(to bottom, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+					border-bottom: 2px solid #444444;
+				}
+				table.blueTable thead th 
+				{
+					font-size: 12px; text-align:center; font-weight: bold; color: #000; border-left: 2px solid #D0E4F5;
+				}
+				table.blueTable thead th:first-child { border-left: none; }
+				table.blueTable tfoot 
+				{ 
+					font-size: 14px; font-weight: bold; color: #000; background: #D0E4F5;
+					background: -moz-linear-gradient(top, #dcebf7 0%, #d4e6f6 66%, #D0E4F5 100%);
+					background: -webkit-linear-gradient(top, #dcebf7 0%, #d4e6f6 66%, #D0E4F5 100%);
+					background: linear-gradient(to bottom, #dcebf7 0%, #d4e6f6 66%, #D0E4F5 100%);
+					border-top: 2px solid #444444;
+				}
+				table.blueTable tfoot td { font-size: 14px; }
+				table.blueTable tfoot .links { text-align: right; }
+				table.blueTable tfoot .links a{ display: inline-block; background: #1C6EA4; color: #000; padding: 2px 8px; border-radius: 5px; }			
+				</style>
+				<!--<input id="equipmentsrc" type="text" placeholder="Search..">-->
+					<table class="blueTable" border="1"> 
+						<thead>
+							<tr>
+													
+								<!--
+									<th width="7%">Request<br>Number</th>
+									<th width="17%">Date Of<br>Request</th>
+									<th width="20%">Order<br>Item Code</th>
+									<th width="7%">Number Of<br>Requests</th>
+									<th width="20%">Name Of<br>Goods Ordered</th>
+									<th width="15%">Order&nbsp;Request Number&nbsp;/<br>Order&nbsp;Purchase Number</th>
+									<th width="15%">Item<br>Status</th>
+									<th width="10%" style="display:none;">STK<br>BARU</th>
+									<th width="10%" style="display:none;">STK<br>BAIK</th>
+									<th width="10%" style="display:none;">STK<br>LAMA</th>
+									
+									<th width="10%">Ticket<br>ID</th>
+									<th width="7%">Request<br>Number</th>
+									<th width="10%">Date Of<br>Request</th>
+									<th width="20%">Name Of<br>Goods Ordered</th>
+									<th width="20%">Detail<br>Information</th>									
+								-->
+									<!--<th width="10%" style="color:#ffffff;">Name Of<br>Goods Ordered</th>-->
+									
+									<th width="14%" style="color:#ffffff;">Item Request</th>
+									<th width="7%" style="color:#ffffff;">Date Of<br>Request</th>																				
+									<th width="10%" style="color:#ffffff;">Transfer<br>To</th>								
+  								    <th width="19%" style="color:#ffffff;">Area Manager<br>Approval</th>							
+									<th width="20%" style="color:#ffffff;">Regional Operation Manager<br>Approval</th>							
+									<th width="20%" style="color:#ffffff;">General Manager Operation<br>Approval</th>	
+							</tr>													
+						</thead>
+					</table>								
+					<div style="width:100%; height:350px; overflow:auto;position:relative;color:#000000;">
+						<table class="blueTable" border="1">
+							<tbody id="myCodes">
+								<?  
+									$objConnect = oci_connect('fsd', 'fsd', 'localhost:1521/XE'); 
+								?>								
+								<?  
+									/**
+									$qcektipebrg = mysql_query("SELECT ITH_TICKET_HEADER.ticket_id, ITH_TICKET_HEADER.kode_tipebrg FROM ITH_TICKET_HEADER 
+																	JOIN ITH_TIPEBRG ON ITH_TICKET_HEADER.kode_tipebrg = ITH_TIPEBRG.kode_tipebrg
+																	WHERE ITH_TICKET_HEADER.ticket_id = '".$_GET['pid']."'");
+									**/
+									$qcektipebrg = mysql_query("SELECT ITH_TIPEBARANG_KODE.TICKET_ID, ITH_TIPEBARANG_KODE.KODE_TIPEBRG, 
+																ITH_TIPEBRG.NAMA_TIPEBRG, ITH_TIPEBARANG_KODE.NO_PERMINTAAN FROM ITH_TIPEBARANG_KODE
+																JOIN ITH_TIPEBRG ON ITH_TIPEBARANG_KODE.KODE_TIPEBRG = ITH_TIPEBRG.KODE_TIPEBRG
+																WHERE ITH_TIPEBARANG_KODE.TICKET_ID = '".$_GET['pid']."'");
+									$rcektipebrg = mysql_fetch_object($qcektipebrg);									
+									$qcektipebrgdetail = mysql_query("SELECT DISTINCT ITH_TICKET_HEADER.ticket_id, ITH_TICKET_HEADER.kode_tipebrg 
+															FROM ITH_TICKET_HEADER 
+															JOIN ITH_TIPEBRG ON ITH_TICKET_HEADER.kode_tipebrg = ITH_TIPEBRG.kode_tipebrg
+															WHERE ITH_TICKET_HEADER.kode_tipebrg != ''
+															AND ITH_TICKET_HEADER.ticket_id = '".$_GET['pid']."'");
+									$rcektipebrgdetail = mysql_fetch_object($qcektipebrgdetail);	
+									
+									/* EQUIPMENT REQUEST ITEM */
+								/*	if(($rcektipebrg->kode_tipebrg=='RQS-03-000112')||($rcektipebrg->kode_tipebrg=='RQS-03-000113')||
+										($rcektipebrg->kode_tipebrg=='RQS-03-000114')||($rcektipebrg->kode_tipebrg=='RQS-03-000115')||
+										($rcektipebrg->kode_tipebrg=='RQS-03-000116')||($rcektipebrg->kode_tipebrg=='RQS-03-000117'))
+									{
+								*/		
+										#echo "<br>TEST-X....";
+										/**
+										$qvCekDataEQ = mysql_query("SELECT DISTINCT ticket_id, no_permintaan, request_by, kode_tipebarang, kode_tipebarang_sw, kode_tipebarang_sp,
+															kuantitas, nama_tipebarang, nama_tipebarang_sw, nama_tipebarang_sp
+															FROM ITH_TIPEBARANG_KODE
+															WHERE ticket_id = '".$_GET['pid']."'");									
+										**/
+										$qvCekDataEQ = mysql_query("SELECT ITH_TIPEBARANG_KODE.TICKET_ID, ITH_TIPEBARANG_KODE.KODE_TIPEBRG, 
+																ITH_TIPEBRG.NAMA_TIPEBRG, ITH_TIPEBARANG_KODE.NO_PERMINTAAN FROM ITH_TIPEBARANG_KODE
+																JOIN ITH_TIPEBRG ON ITH_TIPEBARANG_KODE.KODE_TIPEBRG = ITH_TIPEBRG.KODE_TIPEBRG
+																WHERE ITH_TIPEBARANG_KODE.TICKET_ID = '".$_GET['pid']."'");
+										$rvCekDataEQ = mysql_fetch_object($qvCekDataEQ);
+														/**	
+															$objConnectShowEQ = oci_connect('fsd', 'fsd', 'localhost:1521/XE'); 
+															$qShowEQ = "select FSDORDEC.NO_PERMINTAAN, FSDORDEC.TGL_PERMINTAAN, FSDORDEC.TGL_BUAT_FSD, FSDORDEC.KODE_BARANG, 
+															FSDBRGEQ.NAMA_BARANG,
+															FSDORDEC.JUMLAH_PERMINTAAN, FSDORDEC.JUMLAH_ORDER, FSDORDEC.KIRIM_DARI_STOK, FSDORDEC.TGL_DISETUJUI, 
+															FSDORDEC.NOMOR_RO, FSDORDEC.STATUS_PERMINTAAN
+															from FSDORDEC 
+															JOIN FSDBRGEQ ON FSDORDEC.KODE_BARANG = FSDBRGEQ.KODE_BARANG
+															where NO_PERMINTAAN = '".$rvCekDataEQ->NO_PERMINTAAN."'
+															AND JUMLAH_PERMINTAAN IS NOT NULL order by FSDORDEC.TGL_PERMINTAAN DESC";  
+															$qobjParseShowEQ = oci_parse ($objConnectShowEQ, $qShowEQ);  
+															oci_execute ($qobjParseShowEQ,OCI_DEFAULT);
+														**/
+											$qCekStatusTiketStore = mysql_query("SELECT ticket_id, ticketstatus_id, ticketapprovalstatus_id, ticketapprovalstatus_id2, ticketapprovalstatus_id3 
+																				FROM ITH_TICKET_HEADER WHERE ticket_id = '".$_GET['pid']."'");
+											$rCekStatusTiketStore = mysql_fetch_object($qCekStatusTiketStore);
+											#if(($rCekStatusTiketStore->ticketapprovalstatus_id!='1')&&($rCekStatusTiketStore->ticketapprovalstatus_id2!='1')&&($rCekStatusTiketStore->ticketapprovalstatus_id3!='1'))
+											#{	
+											if(($rCekStatusTiketStore->ticketstatus_id='1')||($rCekStatusTiketStore->ticketstatus_id='2'))
+											{	
+												if(($rCekStatusTiketStore->ticketapprovalstatus_id!='1')&&($rCekStatusTiketStore->ticketapprovalstatus_id2!='1')&&($rCekStatusTiketStore->ticketapprovalstatus_id3!='1'))
+												{	
+															###echo "<br>TEST-1....";
+															##echo "<br> Tiket Status = ".$rCekStatusTiketStore->ticketstatus_id;
+															##echo "<br> Tiket Approval Status-1 = ".$rCekStatusTiketStore->ticketapprovalstatus_id;
+															$con = mysql_connect("localhost","usrservicedesk","kfc14022");
+																		mysql_select_db("servicedesk",$con); //@session_start();	
+															/**
+															$qvCekDataEQ = mysql_query("SELECT DISTINCT ITH_TIPEBARANG_KODE.TICKET_ID, ITH_TIPEBARANG_KODE.KODE_TIPEBRG, 
+																						ITH_TIPEBRG.NAMA_TIPEBRG, ITH_TIPEBARANG_KODE.NO_PERMINTAAN FROM ITH_TIPEBARANG_KODE
+																						JOIN ITH_TIPEBRG ON ITH_TIPEBARANG_KODE.KODE_TIPEBRG = ITH_TIPEBRG.KODE_TIPEBRG
+																						WHERE ITH_TIPEBARANG_KODE.TICKET_ID = '".$_GET['pid']."'");
+															**/
+															$qvCekDataEQx = mysql_query("SELECT DISTINCT ITH_TIPEBARANG_KODE.TICKET_ID, ITH_TIPEBARANG_KODE.NO_PERMINTAAN,
+																						ITH_TICKET_HEADER.TICKET_CREATEDATE,ITH_TICKET_HEADER.TICKET_CREATETIME,
+																						ITH_USER.USER_REALNAME,
+																						ITH_TIPEBARANG_KODE.REQUEST_BY, ITH_TIPEBARANG_KODE.KODE_TIPEBRG, 
+																						ITH_TIPEBARANG_KODE.KODE_TIPEBARANG, ITH_TIPEBARANG_KODE.KUANTITAS, 
+																						ITH_TIPEBARANG_KODE.NAMA_TIPEBARANG,ITH_TIPEBARANG_KODE.KETERANGAN,
+																						ITH_TIPEBARANG_KODE.TICKETAPPROVALSTATUSID_AM, ITH_TIPEBARANG_KODE.TICKETAPPROVALBYNIK_AM, 
+																						ITH_TIPEBARANG_KODE.TICKETAPPROVALBYNAME_AM,
+																						ITH_TIPEBARANG_KODE.TICKETAPPROVALDATE_AM,ITH_TIPEBARANG_KODE.TICKETAPPROVALTIME_AM,
+																						ITH_TIPEBARANG_KODE.TICKETAPPROVALSTATUSID_ROM, ITH_TIPEBARANG_KODE.TICKETAPPROVALBYNIK_ROM, 
+																						ITH_TIPEBARANG_KODE.TICKETAPPROVALBYNAME_ROM,
+																						ITH_TIPEBARANG_KODE.TICKETAPPROVALDATE_ROM,ITH_TIPEBARANG_KODE.TICKETAPPROVALTIME_ROM,
+																						ITH_TIPEBARANG_KODE.TICKETAPPROVALSTATUSID_GMO, ITH_TIPEBARANG_KODE.TICKETAPPROVALBYNIK_GMO, 
+																						ITH_TIPEBARANG_KODE.TICKETAPPROVALBYNAME_GMO,
+																						ITH_TIPEBARANG_KODE.TICKETAPPROVALDATE_GMO,ITH_TIPEBARANG_KODE.TICKETAPPROVALTIME_GMO,
+																						ITH_TIPEBARANG_KODE.KETERANGAN,
+																						ITH_TIPEBARANG_KODE.TICKET_NEEDASSIST,
+																						ITH_TIPEBARANG_KODE.TICKETTRANSFERTO_OUTLETCODE,
+																						ITH_TIPEBARANG_KODE.TICKETTRANSFERTO_OUTLETNAME
+																						FROM ITH_TIPEBARANG_KODE  
+																						JOIN ITH_TICKET_HEADER ON ITH_TIPEBARANG_KODE.TICKET_ID = ITH_TICKET_HEADER.TICKET_ID
+																						JOIN ITH_USER ON ITH_TICKET_HEADER.TICKET_CREATEBY = ITH_USER.USER_NIK
+																						WHERE ITH_TIPEBARANG_KODE.TICKET_ID  = '".$_GET['pid']."'");
+															###$rvCekDataEQ = mysql_fetch_object($qvCekDataEQ);												
+															#echo "<br>Nomer Permintaan : ".$rvCekDataEQ->no_permintaan;
+															$objConnectShowEQ = oci_connect('fsd', 'fsd', 'localhost:1521/XE');
+															/**
+															$qShowEQ = "SELECT DISTINCT FSDORDEC_TEMP.NO_PERMINTAAN, FSDORDEC_TEMP.TGL_PERMINTAAN, 
+															FSDORDEC_TEMP.TGL_BUAT_FSD, FSDORDEC_TEMP.KODE_BARANG, FSDORDEC_TEMP.NO_TAGING, 
+															FSDBRGEQ.NAMA_BARANG,
+															FSDORDEC_TEMP.JUMLAH_PERMINTAAN, FSDORDEC_TEMP.JUMLAH_ORDER, FSDORDEC_TEMP.KIRIM_DARI_STOK, FSDORDEC_TEMP.TGL_DISETUJUI, 
+															FSDORDEC_TEMP.NOMOR_RO, FSDORDEC_TEMP.STATUS_PERMINTAAN
+															FROM FSDORDEC_TEMP 
+															JOIN FSDBRGEQ ON FSDORDEC_TEMP.KODE_BARANG = FSDBRGEQ.KODE_BARANG
+															JOIN FSDNOTAG ON FSDORDEC_TEMP.KODE_BARANG = FSDNOTAG.KODE_BARANG
+															where FSDORDEC_TEMP.NO_PERMINTAAN = '".$rvCekDataEQ->no_permintaan."'
+															order by FSDORDEC_TEMP.TGL_PERMINTAAN DESC";  			
+															**/
+															$qShowEQ = "SELECT DISTINCT FSDORDEC_TEMP.NO_PERMINTAAN, FSDORDEC_TEMP.TGL_PERMINTAAN, 
+															FSDORDEC_TEMP.TGL_BUAT_FSD, FSDORDEC_TEMP.KODE_BARANG, FSDORDEC_TEMP.NO_TAGING, 
+															FSDBRGEQ.NAMA_BARANG,
+															FSDORDEC_TEMP.JUMLAH_PERMINTAAN, FSDORDEC_TEMP.JUMLAH_ORDER, FSDORDEC_TEMP.KIRIM_DARI_STOK, FSDORDEC_TEMP.TGL_DISETUJUI, 
+															FSDORDEC_TEMP.NOMOR_RO, FSDORDEC_TEMP.STATUS_PERMINTAAN
+															FROM FSDORDEC_TEMP 
+															JOIN FSDBRGEQ ON FSDORDEC_TEMP.KODE_BARANG = FSDBRGEQ.KODE_BARANG
+															WHERE FSDORDEC_TEMP.NO_PERMINTAAN = '".$rvCekDataEQ->NO_PERMINTAAN."'
+															GROUP BY FSDORDEC_TEMP.NO_PERMINTAAN, FSDORDEC_TEMP.TGL_PERMINTAAN, 
+															FSDORDEC_TEMP.TGL_BUAT_FSD, FSDORDEC_TEMP.KODE_BARANG, FSDORDEC_TEMP.NO_TAGING, 
+															FSDBRGEQ.NAMA_BARANG,
+															FSDORDEC_TEMP.JUMLAH_PERMINTAAN, FSDORDEC_TEMP.JUMLAH_ORDER, FSDORDEC_TEMP.KIRIM_DARI_STOK, FSDORDEC_TEMP.TGL_DISETUJUI, 
+															FSDORDEC_TEMP.NOMOR_RO, FSDORDEC_TEMP.STATUS_PERMINTAAN
+															ORDER BY FSDORDEC_TEMP.NO_PERMINTAAN, FSDORDEC_TEMP.TGL_PERMINTAAN, 
+															FSDORDEC_TEMP.TGL_BUAT_FSD, FSDORDEC_TEMP.KODE_BARANG, FSDORDEC_TEMP.NO_TAGING, 
+															FSDBRGEQ.NAMA_BARANG,
+															FSDORDEC_TEMP.JUMLAH_PERMINTAAN, FSDORDEC_TEMP.JUMLAH_ORDER, FSDORDEC_TEMP.KIRIM_DARI_STOK, FSDORDEC_TEMP.TGL_DISETUJUI, 
+															FSDORDEC_TEMP.NOMOR_RO, FSDORDEC_TEMP.STATUS_PERMINTAAN ASC";  
+															$qobjParseShowEQ = oci_parse ($objConnectShowEQ, $qShowEQ);  
+															oci_execute ($qobjParseShowEQ,OCI_DEFAULT);
+   															
+												}elseif(($rCekStatusTiketStore->ticketapprovalstatus_id3=='1')||($rCekStatusTiketStore->ticketapprovalstatus_id2=='1')||($rCekStatusTiketStore->ticketapprovalstatus_id=='1'))
+												{
+															###echo "<br>TEST-2....";
+															#echo "<br>OP, AM Approval Done ....";
+														/***	
+															$con = mysql_connect("localhost","usrservicedesk","kfc14022");
+																		mysql_select_db("servicedesk",$con); //@session_start();	
+															$qvCekDataEQ = mysql_query("SELECT DISTINCT ITH_TIPEBARANG_KODE.TICKET_ID, ITH_TIPEBARANG_KODE.KODE_TIPEBRG, 
+																						ITH_TIPEBRG.NAMA_TIPEBRG, ITH_TIPEBARANG_KODE.NO_PERMINTAAN FROM ITH_TIPEBARANG_KODE
+																						JOIN ITH_TIPEBRG ON ITH_TIPEBARANG_KODE.KODE_TIPEBRG = ITH_TIPEBRG.KODE_TIPEBRG
+																						WHERE ITH_TIPEBARANG_KODE.TICKET_ID = '".$_GET['pid']."'");
+															$rvCekDataEQ = mysql_fetch_object($qvCekDataEQ);												
+														***/
+															#echo "<br>Nomer Permintaan : ".$rvCekDataEQ->no_permintaan;
+															$objConnectShowEQ = oci_connect('fsd', 'fsd', 'localhost:1521/XE');
+															/**
+															$qShowEQ = "select DISTINCT FSDORDEC_TEMP.NO_PERMINTAAN, FSDORDEC_TEMP.TGL_PERMINTAAN, 
+															FSDORDEC_TEMP.TGL_BUAT_FSD, FSDORDEC_TEMP.KODE_BARANG, FSDORDEC_TEMP.NO_TAGING,
+															FSDBRGEQ.NAMA_BARANG,
+															FSDORDEC_TEMP.JUMLAH_PERMINTAAN, FSDORDEC_TEMP.JUMLAH_ORDER, FSDORDEC_TEMP.KIRIM_DARI_STOK, FSDORDEC_TEMP.TGL_DISETUJUI, 
+															FSDORDEC_TEMP.NOMOR_RO, FSDORDEC_TEMP.STATUS_PERMINTAAN
+															from FSDORDEC_TEMP 
+															JOIN FSDBRGEQ ON FSDORDEC_TEMP.KODE_BARANG = FSDBRGEQ.KODE_BARANG
+															JOIN FSDNOTAG ON FSDORDEC_TEMP.KODE_BARANG = FSDNOTAG.KODE_BARANG
+															where FSDORDEC_TEMP.NO_PERMINTAAN = '".$rvCekDataEQ->NO_PERMINTAAN."'
+															order by FSDORDEC_TEMP.TGL_PERMINTAAN DESC";  
+															**/
+														/***
+															$qShowEQ = "SELECT DISTINCT FSDORDEC_TEMP.NO_PERMINTAAN, FSDORDEC_TEMP.TGL_PERMINTAAN, 
+															FSDORDEC_TEMP.TGL_BUAT_FSD, FSDORDEC_TEMP.KODE_BARANG, FSDORDEC_TEMP.NO_TAGING, 
+															FSDBRGEQ.NAMA_BARANG,
+															FSDORDEC_TEMP.JUMLAH_PERMINTAAN, FSDORDEC_TEMP.JUMLAH_ORDER, FSDORDEC_TEMP.KIRIM_DARI_STOK, FSDORDEC_TEMP.TGL_DISETUJUI, 
+															FSDORDEC_TEMP.NOMOR_RO, FSDORDEC_TEMP.STATUS_PERMINTAAN
+															FROM FSDORDEC_TEMP 
+															JOIN FSDBRGEQ ON FSDORDEC_TEMP.KODE_BARANG = FSDBRGEQ.KODE_BARANG
+															WHERE FSDORDEC_TEMP.NO_PERMINTAAN = '".$rvCekDataEQ->NO_PERMINTAAN."'
+															GROUP BY FSDORDEC_TEMP.NO_PERMINTAAN, FSDORDEC_TEMP.TGL_PERMINTAAN, 
+															FSDORDEC_TEMP.TGL_BUAT_FSD, FSDORDEC_TEMP.KODE_BARANG, FSDORDEC_TEMP.NO_TAGING, 
+															FSDBRGEQ.NAMA_BARANG,
+															FSDORDEC_TEMP.JUMLAH_PERMINTAAN, FSDORDEC_TEMP.JUMLAH_ORDER, FSDORDEC_TEMP.KIRIM_DARI_STOK, FSDORDEC_TEMP.TGL_DISETUJUI, 
+															FSDORDEC_TEMP.NOMOR_RO, FSDORDEC_TEMP.STATUS_PERMINTAAN
+															ORDER BY FSDORDEC_TEMP.NO_PERMINTAAN, FSDORDEC_TEMP.TGL_PERMINTAAN, 
+															FSDORDEC_TEMP.TGL_BUAT_FSD, FSDORDEC_TEMP.KODE_BARANG, FSDORDEC_TEMP.NO_TAGING, 
+															FSDBRGEQ.NAMA_BARANG,
+															FSDORDEC_TEMP.JUMLAH_PERMINTAAN, FSDORDEC_TEMP.JUMLAH_ORDER, FSDORDEC_TEMP.KIRIM_DARI_STOK, FSDORDEC_TEMP.TGL_DISETUJUI, 
+															FSDORDEC_TEMP.NOMOR_RO, FSDORDEC_TEMP.STATUS_PERMINTAAN ASC";  															
+															$qobjParseShowEQ = oci_parse ($objConnectShowEQ, $qShowEQ);  
+															oci_execute ($qobjParseShowEQ,OCI_DEFAULT); 
+														***/
+															$qvCekDataEQx = mysql_query("SELECT DISTINCT ITH_TIPEBARANG_KODE.TICKET_ID, ITH_TIPEBARANG_KODE.NO_PERMINTAAN,
+																						ITH_TICKET_HEADER.TICKET_CREATEDATE,ITH_TICKET_HEADER.TICKET_CREATETIME,
+																						ITH_USER.USER_REALNAME,
+																						ITH_TIPEBARANG_KODE.REQUEST_BY, ITH_TIPEBARANG_KODE.KODE_TIPEBRG, 
+																						ITH_TIPEBARANG_KODE.KODE_TIPEBARANG, ITH_TIPEBARANG_KODE.KUANTITAS, 
+																						ITH_TIPEBARANG_KODE.NAMA_TIPEBARANG,ITH_TIPEBARANG_KODE.KETERANGAN,
+																						ITH_TIPEBARANG_KODE.TICKETAPPROVALSTATUSID_AM, ITH_TIPEBARANG_KODE.TICKETAPPROVALBYNIK_AM, 
+																						ITH_TIPEBARANG_KODE.TICKETAPPROVALBYNAME_AM,
+																						ITH_TIPEBARANG_KODE.TICKETAPPROVALDATE_AM,ITH_TIPEBARANG_KODE.TICKETAPPROVALTIME_AM,
+																						ITH_TIPEBARANG_KODE.TICKETAPPROVALSTATUSID_ROM, ITH_TIPEBARANG_KODE.TICKETAPPROVALBYNIK_ROM, 
+																						ITH_TIPEBARANG_KODE.TICKETAPPROVALBYNAME_ROM,
+																						ITH_TIPEBARANG_KODE.TICKETAPPROVALDATE_ROM,ITH_TIPEBARANG_KODE.TICKETAPPROVALTIME_ROM,
+																						ITH_TIPEBARANG_KODE.TICKETAPPROVALSTATUSID_GMO, ITH_TIPEBARANG_KODE.TICKETAPPROVALBYNIK_GMO, 
+																						ITH_TIPEBARANG_KODE.TICKETAPPROVALBYNAME_GMO,
+																						ITH_TIPEBARANG_KODE.TICKETAPPROVALDATE_GMO,ITH_TIPEBARANG_KODE.TICKETAPPROVALTIME_GMO,
+																						ITH_TICKET_HEADER.TICKET_CREATEBY,ITH_TIPEBARANG_KODE.KETERANGAN,
+																						ITH_TIPEBARANG_KODE.TICKET_NEEDASSIST,
+																						ITH_TIPEBARANG_KODE.TICKETTRANSFERTO_OUTLETCODE, ITH_TIPEBARANG_KODE.TICKETTRANSFERTO_OUTLETNAME
+																						FROM ITH_TIPEBARANG_KODE  
+																						JOIN ITH_TICKET_HEADER ON ITH_TIPEBARANG_KODE.TICKET_ID = ITH_TICKET_HEADER.TICKET_ID
+																						JOIN ITH_USER ON ITH_TICKET_HEADER.TICKET_CREATEBY = ITH_USER.USER_NIK
+																						WHERE ITH_TIPEBARANG_KODE.TICKET_ID  = '".$_GET['pid']."'
+																						GROUP BY ITH_TIPEBARANG_KODE.TICKET_ID, ITH_TIPEBARANG_KODE.NO_PERMINTAAN,
+																						ITH_TICKET_HEADER.TICKET_CREATEDATE,ITH_TICKET_HEADER.TICKET_CREATETIME,
+																						ITH_USER.USER_REALNAME,
+																						ITH_TIPEBARANG_KODE.REQUEST_BY, ITH_TIPEBARANG_KODE.KODE_TIPEBRG, 
+																						ITH_TIPEBARANG_KODE.KODE_TIPEBARANG, ITH_TIPEBARANG_KODE.KUANTITAS, 
+																						ITH_TIPEBARANG_KODE.NAMA_TIPEBARANG,
+																						ITH_TIPEBARANG_KODE.TICKETAPPROVALSTATUSID_AM, ITH_TIPEBARANG_KODE.TICKETAPPROVALBYNIK_AM, 
+																						ITH_TIPEBARANG_KODE.TICKETAPPROVALBYNAME_AM,
+																						ITH_TIPEBARANG_KODE.TICKETAPPROVALDATE_AM,ITH_TIPEBARANG_KODE.TICKETAPPROVALTIME_AM,
+																						ITH_TIPEBARANG_KODE.TICKETAPPROVALSTATUSID_ROM, ITH_TIPEBARANG_KODE.TICKETAPPROVALBYNIK_ROM, 
+																						ITH_TIPEBARANG_KODE.TICKETAPPROVALBYNAME_ROM,
+																						ITH_TIPEBARANG_KODE.TICKETAPPROVALDATE_ROM,ITH_TIPEBARANG_KODE.TICKETAPPROVALTIME_ROM,
+																						ITH_TIPEBARANG_KODE.TICKETAPPROVALSTATUSID_GMO, ITH_TIPEBARANG_KODE.TICKETAPPROVALBYNIK_GMO, 
+																						ITH_TIPEBARANG_KODE.TICKETAPPROVALBYNAME_GMO,
+																						ITH_TIPEBARANG_KODE.TICKETAPPROVALDATE_GMO,ITH_TIPEBARANG_KODE.TICKETAPPROVALTIME_GMO
+																						ORDER BY ITH_TIPEBARANG_KODE.TICKET_ID, ITH_TIPEBARANG_KODE.NO_PERMINTAAN,
+																						ITH_TICKET_HEADER.TICKET_CREATEDATE,ITH_TICKET_HEADER.TICKET_CREATETIME,
+																						ITH_USER.USER_REALNAME,
+																						ITH_TIPEBARANG_KODE.REQUEST_BY, ITH_TIPEBARANG_KODE.KODE_TIPEBRG, 
+																						ITH_TIPEBARANG_KODE.KODE_TIPEBARANG, ITH_TIPEBARANG_KODE.KUANTITAS, 
+																						ITH_TIPEBARANG_KODE.NAMA_TIPEBARANG,
+																						ITH_TIPEBARANG_KODE.TICKETAPPROVALSTATUSID_AM, ITH_TIPEBARANG_KODE.TICKETAPPROVALBYNIK_AM, 
+																						ITH_TIPEBARANG_KODE.TICKETAPPROVALBYNAME_AM,
+																						ITH_TIPEBARANG_KODE.TICKETAPPROVALDATE_AM,ITH_TIPEBARANG_KODE.TICKETAPPROVALTIME_AM,
+																						ITH_TIPEBARANG_KODE.TICKETAPPROVALSTATUSID_ROM, ITH_TIPEBARANG_KODE.TICKETAPPROVALBYNIK_ROM, 
+																						ITH_TIPEBARANG_KODE.TICKETAPPROVALBYNAME_ROM,
+																						ITH_TIPEBARANG_KODE.TICKETAPPROVALDATE_ROM,ITH_TIPEBARANG_KODE.TICKETAPPROVALTIME_ROM,
+																						ITH_TIPEBARANG_KODE.TICKETAPPROVALSTATUSID_GMO, ITH_TIPEBARANG_KODE.TICKETAPPROVALBYNIK_GMO, 
+																						ITH_TIPEBARANG_KODE.TICKETAPPROVALBYNAME_GMO,
+																						ITH_TIPEBARANG_KODE.TICKETAPPROVALDATE_GMO,ITH_TIPEBARANG_KODE.TICKETAPPROVALTIME_GMO ASC");
+														
+												#}	
+												}elseif
+												((($rCekStatusTiketStore->ticketapprovalstatus_id=='1')&&($rCekStatusTiketStore->ticketapprovalstatus_id2=='1')&&($rCekStatusTiketStore->ticketapprovalstatus_id3=='1'))||
+												(($rCekStatusTiketStore->ticketapprovalstatus_id=='1')&&($rCekStatusTiketStore->ticketapprovalstatus_id2=='2')&&($rCekStatusTiketStore->ticketapprovalstatus_id3=='2'))||
+												(($rCekStatusTiketStore->ticketapprovalstatus_id=='1')&&($rCekStatusTiketStore->ticketapprovalstatus_id2=='1')&&($rCekStatusTiketStore->ticketapprovalstatus_id3=='2'))||
+												(($rCekStatusTiketStore->ticketapprovalstatus_id=='2')&&($rCekStatusTiketStore->ticketapprovalstatus_id2=='2')&&($rCekStatusTiketStore->ticketapprovalstatus_id3=='1'))||
+												(($rCekStatusTiketStore->ticketapprovalstatus_id=='2')&&($rCekStatusTiketStore->ticketapprovalstatus_id2=='1')&&($rCekStatusTiketStore->ticketapprovalstatus_id3=='1'))||
+												(($rCekStatusTiketStore->ticketapprovalstatus_id=='1')&&($rCekStatusTiketStore->ticketapprovalstatus_id2=='2')&&($rCekStatusTiketStore->ticketapprovalstatus_id3=='1')))
+												{	
+													echo "<br>TEST-3....";
+													#	echo "Test 2";										
+														/*	$qShowEQ = "select FSDORDEC.NO_PERMINTAAN, FSDORDEC.TGL_PERMINTAAN, FSDORDEC.TGL_BUAT_FSD, FSDORDEC.KODE_BARANG, 
+															FSDBRGEQ.NAMA_BARANG,
+															FSDORDEC.JUMLAH_PERMINTAAN, FSDORDEC.JUMLAH_ORDER, FSDORDEC.KIRIM_DARI_STOK, FSDORDEC.TGL_DISETUJUI, 
+															FSDORDEC.NOMOR_RO, FSDORDEC.STATUS_PERMINTAAN
+															from FSDORDEC 
+															JOIN FSDBRGEQ ON FSDORDEC.KODE_BARANG = FSDBRGEQ.KODE_BARANG
+															where NO_PERMINTAAN = '$rvCekDataEQ->no_permintaan'
+															AND JUMLAH_PERMINTAAN IS NOT NULL order by FSDORDEC.TGL_PERMINTAAN DESC";  */
+															
+													$qCNmrROEQ = "SELECT 
+																FSDORDEC.KODE_CABANG, MSTCBGDT.NAMA_CABANG, FSDORDEC.NO_PERMINTAAN, 
+																FSDORDEC.NOMOR_RO,FSDORDEC.TGL_PERMINTAAN, FSDORDEC.KODE_BARANG, 
+																FSDBRGEQ.NAMA_BARANG, FSDORDEC.JUMLAH_PERMINTAAN,FSDORDEC.STATUS_PERMINTAAN,FSDROEQC.STATUS
+																FROM FSDORDEC 
+																JOIN MSTCBGDT ON FSDORDEC.KODE_CABANG = MSTCBGDT.CABANG_HEADER
+																JOIN FSDBRGEQ ON FSDORDEC.KODE_BARANG = FSDBRGEQ.KODE_BARANG
+																JOIN FSDROEQC ON FSDORDEC.NOMOR_RO = FSDROEQC.NOMOR_RO
+																WHERE FSDORDEC.NO_PERMINTAAN =  '".$rvCekDataEQ->NO_PERMINTAAN."'";  
+													$qobjParseCNmrROEQ = oci_parse ($objConnectShowEQ, $qCNmrROEQ);  
+																	   oci_execute ($qobjParseCNmrROEQ,OCI_DEFAULT); 
+													$rvCNmrROEQ = oci_fetch_array($qobjParseCNmrROEQ,OCI_BOTH);		
+													if($rvCNmrROEQ['NOMOR_RO']==' ')
+													{
+															#echo "<br>TIDAK ADA NOMOR RO";
+														$con = mysql_connect("localhost","usrservicedesk","kfc14022");
+																mysql_select_db("servicedesk",$con); 	
+														$qCekStatusTiketX = mysql_query("SELECT ticketstatus_id FROM ITH_TICKET_HEADER
+																						WHERE ticket_id = '$_GET[pid]'");	
+														$rCekStatusTiketX = mysql_fetch_object($qCekStatusTiketX);
+														if($rCekStatusTiketX->ticketstatus_id=='2')
+														{	 	#echo "ON PROCESS ZZZ";	 
+																echo "<br>TEST-4....";
+																#$objConnectShowEQ = oci_connect('fsd', 'fsd', 'localhost:1521/XE'); 											
+																	$qShowEQ = "select FSDORDEC.NO_PERMINTAAN, FSDORDEC.TGL_PERMINTAAN, FSDORDEC.TGL_BUAT_FSD, FSDORDEC.KODE_BARANG, 
+																	FSDBRGEQ.NAMA_BARANG,
+																	FSDORDEC.JUMLAH_PERMINTAAN, FSDORDEC.JUMLAH_ORDER, FSDORDEC.KIRIM_DARI_STOK, FSDORDEC.TGL_DISETUJUI, 
+																	FSDORDEC.NOMOR_RO, FSDORDEC.STATUS_PERMINTAAN,FSDROEQC.STATUS
+																	from FSDORDEC 
+																	JOIN FSDBRGEQ ON FSDORDEC.KODE_BARANG = FSDBRGEQ.KODE_BARANG
+																	JOIN FSDROEQC ON FSDORDEC.NOMOR_RO = FSDROEQC.NOMOR_RO
+																	where FSDORDEC.NO_PERMINTAAN =  '".$rvCekDataEQ->NO_PERMINTAAN."'";
+																	$qobjParseShowEQ = oci_parse ($objConnectShowEQ, $qShowEQ);  
+																		   oci_execute ($qobjParseShowEQ,OCI_DEFAULT); 															
+														}													
+													}elseif($rvCNmrROEQ['NOMOR_RO']!=' ')
+													{	 
+														$con = mysql_connect("localhost","usrservicedesk","kfc14022");
+																			mysql_select_db("servicedesk",$con); //@session_start();												
+														$qCekStatusTiketX = mysql_query("SELECT ticketstatus_id FROM ITH_TICKET_HEADER
+																							WHERE ticket_id = '$_GET[pid]'");	
+														$rCekStatusTiketX = mysql_fetch_object($qCekStatusTiketX);
+														if($rCekStatusTiketX->ticketstatus_id=='2')
+														{		#echo "<br>ON PROCESS";		
+																echo "<br>TEST-5....";
+																$qShowEQ = "select DISTINCT FSDORDEC.NO_PERMINTAAN, FSDORDEC.TGL_PERMINTAAN, FSDORDEC.TGL_BUAT_FSD, FSDORDEC.KODE_BARANG, 
+																FSDBRGEQ.NAMA_BARANG,
+																FSDORDEC.JUMLAH_PERMINTAAN, FSDORDEC.JUMLAH_ORDER, FSDORDEC.KIRIM_DARI_STOK, FSDORDEC.TGL_DISETUJUI, 
+																FSDORDEC.NOMOR_RO, FSDORDEC.STATUS_PERMINTAAN,FSDROEQC.STATUS
+																from FSDORDEC 
+																JOIN FSDBRGEQ ON FSDORDEC.KODE_BARANG = FSDBRGEQ.KODE_BARANG
+																JOIN FSDROEQC ON FSDORDEC.NOMOR_RO = FSDROEQC.NOMOR_RO
+																where FSDORDEC.NOMOR_RO = '".$rvCNmrROEQ['NOMOR_RO']."' order by FSDORDEC.TGL_PERMINTAAN DESC";
+			
+																$qobjParseShowEQ = oci_parse ($objConnectShowEQ, $qShowEQ);  
+																	   oci_execute ($qobjParseShowEQ,OCI_DEFAULT); 															
+														}elseif(($rCekStatusTiketX->ticketstatus_id=='0')||($rCekStatusTiketX->ticketstatus_id=='5'))
+														{    #echo "<br>SOLVED";			
+																echo "<br>TEST-6....";
+																$qShowEQ = "select DISTINCT FSDORDEC.KODE_CABANG, MSTCBGDT.NAMA_CABANG, FSDORDEC.NO_PERMINTAAN, FSDPOEQC.NO_PO,
+																			FSDORDEC.NOMOR_RO,FSDORDEC.TGL_PERMINTAAN, FSDORDEC.KODE_BARANG, 
+																			FSDBRGEQ.NAMA_BARANG, FSDORDEC.JUMLAH_PERMINTAAN, FSDORDEC.KIRIM_DARI_STOK,
+																			FSDPREQC.NO_DELIVERY_ORDER, FSDPREQC.QTY, FSDPREQC.HARGA_BELI, FSDPREQC.MATA_UANG, FSDPREQC.TOTAL_BELI, FSDPREQC.TGL_RECEIVE, FSDPREQC.TGL_DO,
+																			FSDKRMEQ.TGL_TRANSAKSI, FSDKRMEQ.QTY_KIRIM, FSDKRMEQ.JUMLAH_DITERIMA, 
+																			FSDKRMEQ.NAMA_PENGIRIM, FSDKRMEQ.TANGGAL_KIRIM, FSDKRMEQ.NAMA_PENERIMA, FSDKRMEQ.TANGGAL_DITERIMA,
+																			FSDKRMEQ.QTY_KIRIM_BARU, FSDKRMEQ.QTY_KIRIM_BAIK, FSDKRMEQ.HARGA_BARU, FSDKRMEQ.HARGA_BAIK,
+																			FSDORDEC.STATUS_PERMINTAAN, FSDROEQC.STATUS, FSDKRMEQ.STATUS_KIRIM
+																			from FSDORDEC
+																			JOIN MSTCBGDT ON FSDORDEC.KODE_CABANG = MSTCBGDT.CABANG_HEADER
+																			JOIN FSDBRGEQ ON FSDORDEC.KODE_BARANG = FSDBRGEQ.KODE_BARANG
+																			JOIN FSDROEQC ON FSDORDEC.NOMOR_RO = FSDROEQC.NOMOR_RO
+																			JOIN FSDPOEQC ON FSDORDEC.NOMOR_RO = FSDPOEQC.NO_RO
+																			JOIN FSDPREQC ON FSDPOEQC.NO_PO = FSDPREQC.NO_PO
+																			JOIN FSDKRMEQ ON FSDORDEC.NOMOR_RO = FSDKRMEQ.NO_RO
+																			WHERE FSDORDEC.NOMOR_RO = '".$rvCNmrROEQ['NOMOR_RO']."'";
+																$qobjParseShowEQ = oci_parse ($objConnectShowEQ, $qShowEQ);  
+																	   oci_execute ($qobjParseShowEQ,OCI_DEFAULT); 															
+														}
+													}
+												}
+											}															
+															#while($rvSCatShowEQ = oci_fetch_array($qobjParseShowEQ,OCI_BOTH))  
+															while($rvCekDataEQx = mysql_fetch_array($qvCekDataEQx))  
+															{  
+															?>  												
+															<tr>												
+																		<td width="10%">
+																		<div style="margin-left:20px;color:brown;font-weight:bold;"><?=$rvCekDataEQx["KODE_TIPEBARANG"].' - '.$rvCekDataEQx["NAMA_TIPEBARANG"];?>
+																		</div>
+																		  <br> 
+																			<?
+																				$qCekReqByNik3 = mysql_query("SELECT ITH_TICKET_HEADER.ticket_id,ITH_TICKET_HEADER.ticket_createby,ITH_USER.userstoregroup_id 
+																											 FROM ITH_TICKET_HEADER
+																											 JOIN ITH_USER ON ITH_TICKET_HEADER.ticket_createby = ITH_USER.user_nik
+																											 JOIN ITH_USER ITUSRX2 ON ITH_USER.userstoregroup_id = ITUSRX2.user_nik
+																											 WHERE ITH_TICKET_HEADER.ticket_id = '".$_GET['pid']."'");
+																				$rCekReqByNik3 = mysql_fetch_object($qCekReqByNik3);							 
+																			?>																		  
+																		  <? 
+																			$objConnectReplaceCekItem = oci_connect('fsd', 'fsd', 'localhost:1521/XE'); 
+																		   $qvSCatReplaceCekItem = "SELECT FSDBRGEQASSET_NEW.ITEM_NAME
+																					 FROM FSDMSTTRX_STORENEW 
+																					 JOIN FSDBRGEQASSET_NEW ON FSDMSTTRX_STORENEW.ITEM_CODE = FSDBRGEQASSET_NEW.ITEM_CODE																			 
+																					 WHERE 
+																					 ((FSDMSTTRX_STORENEW.OUTLET_CODE = '".$rvCekDataEQx['TICKET_CREATEBY']."')OR(FSDMSTTRX_STORENEW.OUTLET_CODE = '".$rCekReqByNik3->userstoregroup_id."')) 
+																					 AND FSDMSTTRX_STORENEW.ITEM_CODE = '".$rvCekDataEQx["KODE_TIPEBARANG"]."' ";
+																			$qobjParseReplaceCekItem = oci_parse ($objConnectReplaceCekItem, $qvSCatReplaceCekItem);  
+																								 oci_execute ($qobjParseReplaceCekItem,OCI_DEFAULT); 	
+																			while($rvSCatReplaceCekItem = oci_fetch_object($qobjParseReplaceCekItem,OCI_BOTH))
+																			{	
+																				$cekItemName = substr($rvSCatReplaceCekItem->ITEM_NAME,-3);
+																		  ?>
+																			
+																		  <? if($cekItemName == 'OLD'){ ?>	
+																		
+																		  <ul style="margin-bottom:-5px;">
+																			<?
+																				$qCekReqByNik4 = mysql_query("SELECT ITH_TICKET_HEADER.ticket_id,ITH_TICKET_HEADER.ticket_createby,ITH_USER.userstoregroup_id 
+																											 FROM ITH_TICKET_HEADER
+																											 JOIN ITH_USER ON ITH_TICKET_HEADER.ticket_createby = ITH_USER.user_nik
+																											 JOIN ITH_USER ITUSRX2 ON ITH_USER.userstoregroup_id = ITUSRX2.user_nik
+																											 WHERE ITH_TICKET_HEADER.ticket_id = '".$_GET['pid']."'");
+																				$rCekReqByNik4 = mysql_fetch_object($qCekReqByNik4);							 
+																			?>																			  
+																		   <? 	$objConnectReplaceOldItem = oci_connect('fsd', 'fsd', 'localhost:1521/XE'); 
+																				$qvSCatReplaceOldItem = "SELECT DISTINCT 																			
+																					 FSDMSTTRX_STORENEW.UMUR_BUKU AS UMURBUKUOLDITEM,
+																					 FSDMSTTRX_STORENEW.NILAI_BUKU AS NILAIBUKUOLDITEM,
+																					 FSDBRGEQASSET_NEW.NOMOR_TAGING AS NOTAGING
+																					 FROM FSDMSTTRX_STORENEW 
+																					 JOIN FSDBRGEQASSET_NEW ON FSDMSTTRX_STORENEW.ITEM_CODE = FSDBRGEQASSET_NEW.ITEM_CODE																			 
+																					 WHERE 
+																					 ((FSDMSTTRX_STORENEW.OUTLET_CODE = '".$rvCekDataEQx['TICKET_CREATEBY']."')OR(FSDMSTTRX_STORENEW.OUTLET_CODE = '".$rCekReqByNik4->userstoregroup_id."')) 
+																					 AND 
+																					 FSDMSTTRX_STORENEW.ITEM_CODE = '".$rvCekDataEQx["KODE_TIPEBARANG"]."' 
+																					 AND FSDBRGEQASSET_NEW.ITEM_NAME LIKE '%OLD'";
+																				$qobjParseReplaceOldItem = oci_parse ($objConnectReplaceOldItem, $qvSCatReplaceOldItem);  
+																								 oci_execute ($qobjParseReplaceOldItem,OCI_DEFAULT); 	
+																				while($rvSCatReplaceOldItem = oci_fetch_object($qobjParseReplaceOldItem,OCI_BOTH))
+																				{	
+																					$jumlah_desimal  = "0";
+																					$pemisah_desimal = ".";
+																					$pemisah_ribuan  = ".";	
+																		   ?>
+																				<?
+																					$con =  mysql_connect("localhost","usrservicedesk","kfc14022");
+																							mysql_select_db("servicedesk",$con); //@session_start();	
+																					$qvCekDataEQ = mysql_query("SELECT DISTINCT ticket_id,kode_tipebrg
+																						                            FROM ITH_TIPEBARANG_KODE WHERE ticket_id = '".$_GET['pid']."'");
+																					$rvCekDataEQ = mysql_fetch_object($qvCekDataEQ);	
+																					if(($rvCekDataEQ->kode_tipebrg=='RQS-03-000112replace')||($rvCekDataEQ->kode_tipebrg=='RQS-03-000113replace')||
+																					   ($rvCekDataEQ->kode_tipebrg=='RQS-03-000114replace')||($rvCekDataEQ->kode_tipebrg=='RQS-03-000112move')||
+																					   ($rvCekDataEQ->kode_tipebrg=='RQS-03-000113move')||($rvCekDataEQ->kode_tipebrg=='RQS-03-000114move'))
+																					{		
+																			  	?>																			
+																					<li><b> Book Age : <?=$rvSCatReplaceOldItem->UMURBUKUOLDITEM?></b></li> 
+																					<li><b> Book Value  : <font color="brown"><?='<strong>Rp.&nbsp;'.number_format($rvSCatReplaceOldItem->NILAIBUKUOLDITEM, $jumlah_desimal, $pemisah_desimal, $pemisah_ribuan)."-".'</strong>';?></font></b></li>
+																						<? if(($detailmyticketKeteranganData->keterangan=='ADDING REQUEST')||($detailmyticketKeteranganData->keterangan=='REPLACEMENT REQUEST')){ ?>
+																							<li><b> New Price : <font color="brown"><?='<strong>Rp.&nbsp;'.number_format($rvSCatReplaceOldItem->ITEMPRICEOLDITEM, $jumlah_desimal, $pemisah_desimal, $pemisah_ribuan)."-".'</strong>';?></font></b></li>
+																						<? } ?>
+																					<? 
+																						$qCekStatusKeteranganData = mysql_query("SELECT DISTINCT keterangan FROM ITH_TIPEBARANG_KODE 
+																																 WHERE ticket_id = '".$_GET['pid']."' AND kode_tipebarang = '".$rvCekDataEQx["KODE_TIPEBARANG"]."'");
+																						$detailmyticketKeteranganData = mysql_fetch_object($qCekStatusKeteranganData);
+																						$subkalimat = ucwords(strtolower(substr($detailmyticketKeteranganData->keterangan,8)));
+																					?>																					
+																					<? if($detailmyticketKeteranganData->keterangan=='MOVE TO WAREHOUSE'){ ?>
+																						<!--<li><b> Move To B1 : <font color="brown"><!?=$subkalimat;?> </b></font></li>-->
+																						<li><b> Tagging Number : <font color="brown"><?=$rvSCatReplaceOldItem->NOTAGING;?> </b></font></li><br>
+																					<? }elseif($detailmyticketKeteranganData->keterangan=='MOVE TO OTHER STORE'){ ?>
+																						<!--<li><b> Move To B1x : <font color="brown"><!?=$subkalimat;?> </b></font></li>-->
+																						<li><b> Tagging Number : <font color="brown"><?=$rvSCatReplaceOldItem->NOTAGING;?> </b></font></li><br>
+																					<? } ?>	
+																					
+																					<? 
+																						$qCekDataInputan = mysql_query("SELECT received_by, received_date, tickettransferto_outletcode, tickettransferto_outletname 
+																														FROM ITH_TIPEBARANG_KODE WHERE ticket_id ='".$_GET['pid']."' 
+																														AND kode_tipebarang = '".$rvSCatReplaceCekItem->ITEM_CODE."'");
+																						while($rCekDataInputan = mysql_fetch_object($qCekDataInputan)){
+																						$receivedbyName = preg_replace('/[^A-Za-z0-9\  ]/', '', $rCekDataInputan->received_by);
+																						$receivedbyNames = ucwords(strtolower($receivedbyName));									
+																					?>
+																						<? if($rCekDataInputan->received_date!=''){ ?>																		
+																							<li><b> Received By : <font color="brown"><?=$rCekDataInputan->received_by.'&nbsp;&nbsp;<br>(Store '.$rCekDataInputan->tickettransferto_outletname.')'?></font></b></li>
+																						<? }elseif($rCekDataInputan->received_date==''){ ?>																		
+																							<li><b> Received By : <font color="brown"><?='Not Yet Responded'?></font></b></li>
+																						<? } ?>																		
+																					<? } ?>																							
+																					<? } ?>
+																					<? 
+																						$qCekStatusKeteranganData = mysql_query("SELECT DISTINCT keterangan FROM ITH_TIPEBARANG_KODE 
+																																 WHERE ticket_id = '".$_GET['pid']."' AND kode_tipebarang = '".$rvCekDataEQx["KODE_TIPEBARANG"]."'");
+																						$detailmyticketKeteranganData = mysql_fetch_object($qCekStatusKeteranganData);
+																						$subkalimat = ucwords(strtolower(substr($detailmyticketKeteranganData->keterangan,8)));
+																					?>
+																						<!--? if($detailmyticketKeteranganData->keterangan=='MOVE TO WAREHOUSE'){ ?-->
+																							<!--<li><b> Move To : <font color="brown"><!?=$subkalimat;?> </b></font></li>-->
+																						<!--? }elseif($detailmyticketKeteranganData->keterangan=='MOVE TO OTHER STORE'){ ?-->
+																							<!--<li><b> Move To : <font color="brown"><!?=$subkalimat;?> </b></font></li>-->
+																						<!--? } ?-->																	
+																			<? } ?>	
+																			<?
+																				$qCekReqByNik = mysql_query("SELECT ITH_TICKET_HEADER.ticket_id,ITH_TICKET_HEADER.ticket_createby,
+																											ITH_USER.userstoregroup_id
+																											 FROM ITH_TICKET_HEADER
+																											 JOIN ITH_USER ON ITH_TICKET_HEADER.ticket_createby = ITH_USER.user_nik
+																											 JOIN ITH_USER ITUSRX2 ON ITH_USER.userstoregroup_id = ITUSRX2.user_nik
+																											 WHERE ITH_TICKET_HEADER.ticket_id = '".$_GET['pid']."'");
+																				$rCekReqByNik = mysql_fetch_object($qCekReqByNik);							 
+																			?>
+																			<? $objConnectReplace = oci_connect('fsd', 'fsd', 'localhost:1521/XE');
+																				$qvSCatReplace2 = "SELECT DISTINCT 
+																					 FSDMSTTRX_STORENEW.ITEM_CODE_REPLACE AS ITEMCODEREPLACE, 
+																					 FSDBRGEQASSET_NEW2.ITEM_NAME AS ITEMNAMEREPLACE,
+																					 FSDBRGEQASSET_NEW.NOMOR_TAGING AS NOTAGREPLACE, 
+																					 FSDMSTTRX_STORENEW.ITEM_MODEL AS ITEMMODELREPLACE,
+																					 FSDMSTTRX_STORENEW.ITEM_BRAND AS ITEMBRANDREPLACE,
+																					 FSDMSTTRX_STORENEW.UMUR_BUKU AS UMURBUKUREPLACE,
+																					 FSDMSTTRX_STORENEW.NILAI_BUKU AS NILAIBUKUREPLACE,
+																					 FSDMSTTRX_STORENEW.ITEM_PRICE AS ITEMPRICEREPLACE,
+																					 FSDBRGEQASSET_NEW.NOMOR_TAGING AS NOTAGING
+																					 FROM FSDMSTTRX_STORENEW 
+																					 JOIN FSDBRGEQASSET_NEW ON FSDMSTTRX_STORENEW.ITEM_CODE = FSDBRGEQASSET_NEW.ITEM_CODE
+																					 JOIN FSDBRGEQASSET_NEW FSDBRGEQASSET_NEW2 ON  FSDMSTTRX_STORENEW.ITEM_CODE_REPLACE = FSDBRGEQASSET_NEW2.ITEM_CODE
+																					 WHERE 
+																					 ((FSDMSTTRX_STORENEW.OUTLET_CODE = '".$rvCekDataEQx['TICKET_CREATEBY']."')OR(FSDMSTTRX_STORENEW.OUTLET_CODE = '".$rCekReqByNik->userstoregroup_id."')) 
+																					 AND 
+																					 FSDMSTTRX_STORENEW.ITEM_CODE = '".$rvCekDataEQx["KODE_TIPEBARANG"]."' AND FSDBRGEQASSET_NEW.ITEM_NAME LIKE '%OLD'";
+																			$qobjParseReplace2 = oci_parse ($objConnectReplace, $qvSCatReplace2);  
+																								 oci_execute ($qobjParseReplace2,OCI_DEFAULT); 	
+																			while($rvSCatReplace2 = oci_fetch_object($qobjParseReplace2,OCI_BOTH))
+																			{	
+																			$jumlah_desimal  = "0";
+																			$pemisah_desimal = ".";
+																			$pemisah_ribuan  = ".";	
+																			?>	
+																				<? if(($detailmyticketKeteranganData->keterangan=='ADDING REQUEST')||($detailmyticketKeteranganData->keterangan=='REPLACEMENT REQUEST')){ ?>																			
+																					<br><b><u>REPLACEMENT ITEM : </u></b>
+																					
+																					<li><b> <font color="brown"><?=$rvSCatReplace2->ITEMCODEREPLACE;?> - <?=$rvSCatReplace2->ITEMNAMEREPLACE;?></font></b></li>
+																					<!--<li><b> Age		  : <font color="brown"><!?=$rvSCatReplace2->UMURBUKUREPLACE;?></font></b></li>
+																					<li><b> Book Value: <font color="brown"><!?='<strong>Rp.&nbsp;'.number_format($rvSCatReplace2->NILAIBUKUREPLACE, $jumlah_desimal, $pemisah_desimal, $pemisah_ribuan)."-".'</strong>';?></font></b></li>-->
+																					
+																							<? if(($detailmyticketKeteranganData->keterangan=='ADDING REQUEST')||($detailmyticketKeteranganData->keterangan=='REPLACEMENT REQUEST')){ ?>
+																								<li><b> New Price: <font color="brown"><?='<strong>Rp.&nbsp;'.number_format($rvSCatReplace2->ITEMPRICEREPLACE, $jumlah_desimal, $pemisah_desimal, $pemisah_ribuan)."-".'</strong>';?></font></b></li>
+																							<? } ?>																					
+																							
+																							<br>																			
+																				<? } ?>	
+																			<? } ?>	
+																		  </ul>
+																		  <? }elseif($cekItemName == 'NEW'){ ?>																			  
+																		  <ul style="margin-bottom:-5px;">
+																		  	<?
+																				$qCekReqByNik2 = mysql_query("SELECT ITH_TICKET_HEADER.ticket_id,ITH_TICKET_HEADER.ticket_createby,
+																											ITH_USER.userstoregroup_id
+																											 FROM ITH_TICKET_HEADER
+																											 JOIN ITH_USER ON ITH_TICKET_HEADER.ticket_createby = ITH_USER.user_nik
+																											 JOIN ITH_USER ITUSRX2 ON ITH_USER.userstoregroup_id = ITUSRX2.user_nik
+																											 WHERE ITH_TICKET_HEADER.ticket_id = '".$_GET['pid']."'");
+																				$rCekReqByNik2 = mysql_fetch_object($qCekReqByNik2);							 
+																			?>
+																		   <? 	$objConnectReplaceOldItem = oci_connect('fsd', 'fsd', 'localhost:1521/XE'); 
+																				$qvSCatReplaceOldItem = "SELECT DISTINCT 																			
+																					 FSDMSTTRX_STORENEW.UMUR_BUKU AS UMURBUKUOLDITEM,
+																					 FSDMSTTRX_STORENEW.NILAI_BUKU AS NILAIBUKUOLDITEM,
+																					 FSDMSTTRX_STORENEW.ITEM_PRICE AS ITEMPRICEOLDITEM,
+																					 FSDBRGEQASSET_NEW.NOMOR_TAGING AS NOTAGING
+																					 FROM FSDMSTTRX_STORENEW 
+																					 JOIN FSDBRGEQASSET_NEW ON FSDMSTTRX_STORENEW.ITEM_CODE = FSDBRGEQASSET_NEW.ITEM_CODE																			 
+																					 WHERE 
+																					 ((FSDMSTTRX_STORENEW.OUTLET_CODE = '".$rvCekDataEQx['TICKET_CREATEBY']."')OR(FSDMSTTRX_STORENEW.OUTLET_CODE = '".$rCekReqByNik2->userstoregroup_id."')) 
+																					 AND 
+																					 FSDMSTTRX_STORENEW.ITEM_CODE = '".$rvCekDataEQx["KODE_TIPEBARANG"]."' 
+																					 AND FSDBRGEQASSET_NEW.ITEM_NAME LIKE '%NEW'";
+																				$qobjParseReplaceOldItem = oci_parse ($objConnectReplaceOldItem, $qvSCatReplaceOldItem);  
+																								 oci_execute ($qobjParseReplaceOldItem,OCI_DEFAULT); 	
+																				while($rvSCatReplaceOldItem = oci_fetch_object($qobjParseReplaceOldItem,OCI_BOTH))
+																				{	
+																					$jumlah_desimal  = "0";
+																					$pemisah_desimal = ".";
+																					$pemisah_ribuan  = ".";	
+																		   ?>
+																				<?
+																					$con =  mysql_connect("localhost","usrservicedesk","kfc14022");
+																							mysql_select_db("servicedesk",$con); //@session_start();	
+																					$qvCekDataEQ = mysql_query("SELECT DISTINCT ticket_id,kode_tipebrg
+																						                            FROM ITH_TIPEBARANG_KODE WHERE ticket_id = '".$_GET['pid']."'");
+																					$rvCekDataEQ = mysql_fetch_object($qvCekDataEQ);	
+																					if(($rvCekDataEQ->kode_tipebrg=='RQS-03-000112replace')||($rvCekDataEQ->kode_tipebrg=='RQS-03-000113replace')||
+																					   ($rvCekDataEQ->kode_tipebrg=='RQS-03-000114replace')||($rvCekDataEQ->kode_tipebrg=='RQS-03-000112move')||
+																					   ($rvCekDataEQ->kode_tipebrg=='RQS-03-000113move')||($rvCekDataEQ->kode_tipebrg=='RQS-03-000114move'))
+																					{		
+																			  	?>																			
+																					<li><b> Book Age : <?=$rvSCatReplaceOldItem->UMURBUKUOLDITEM?></b></li> 
+																					<li><b> Book Value : <font color="brown"><?='<strong>Rp.&nbsp;'.number_format($rvSCatReplaceOldItem->NILAIBUKUOLDITEM, $jumlah_desimal, $pemisah_desimal, $pemisah_ribuan)."-".'</strong>';?></font></b></li>
+																					<? if(($detailmyticketKeteranganData->keterangan=='ADDING REQUEST')||($detailmyticketKeteranganData->keterangan=='REPLACEMENT REQUEST')){ ?>
+																						<li><b> New Price : <font color="brown"><?='<strong>Rp.&nbsp;'.number_format($rvSCatReplaceOldItem->ITEMPRICEOLDITEM, $jumlah_desimal, $pemisah_desimal, $pemisah_ribuan)."-".'</strong>';?></font></b></li>
+																					<? } ?>
+																					
+																					<? if($detailmyticketKeteranganData->keterangan=='MOVE TO WAREHOUSE'){ ?>
+																						<!--<li><b> Move To B1 : <font color="brown"><!?=$subkalimat;?> </b></font></li>-->
+																						<li><b> Tagging Number : <font color="brown"><?=$rvSCatReplaceOldItem->NOTAGING;?> </b></font></li><br>
+																					<? }elseif($detailmyticketKeteranganData->keterangan=='MOVE TO OTHER STORE'){ ?>
+																						<!--<li><b> Move To B1x : <font color="brown"><!?=$subkalimat;?> </b></font></li>-->
+																						<li><b> Tagging Number : <font color="brown"><?=$rvSCatReplaceOldItem->NOTAGING;?> </b></font></li><br>
+																					<? } ?>																						
+																					<br>
+																					<? 
+																							$qCekDataInputan = mysql_query("SELECT received_by, received_date, tickettransferto_outletcode, tickettransferto_outletname 
+																															FROM ITH_TIPEBARANG_KODE WHERE ticket_id ='".$_GET['pid']."' 
+																															AND kode_tipebarang = '".$rvSCatReplaceCekItem->ITEM_CODE."'");
+																							while($rCekDataInputan = mysql_fetch_object($qCekDataInputan)){
+																							$receivedbyName = preg_replace('/[^A-Za-z0-9\  ]/', '', $rCekDataInputan->received_by);
+																							$receivedbyNames = ucwords(strtolower($receivedbyName));									
+																						?>
+																							<? if($rCekDataInputan->received_date!=''){ ?>																		
+																								<li><b> Received By : <font color="brown"><?=$rCekDataInputan->received_by.'&nbsp;&nbsp;<br>(Store '.$rCekDataInputan->tickettransferto_outletname.')'?></font></b></li>
+																							<? }elseif($rCekDataInputan->received_date==''){ ?>																		
+																								<li><b> Received By : <font color="brown"><?='Not Yet Responded'?></font></b></li>
+																							<? } ?>																		
+																						<? } ?>																							
+																					<? } ?>
+																					<!--? 
+																						$qCekStatusKeteranganData = mysql_query("SELECT DISTINCT keterangan FROM ITH_TIPEBARANG_KODE 
+																																 WHERE ticket_id = '".$_GET['pid']."' AND kode_tipebarang = '".$rvCekDataEQx["KODE_TIPEBARANG"]."'");
+																						$detailmyticketKeteranganData = mysql_fetch_object($qCekStatusKeteranganData);
+																						$subkalimat = ucwords(strtolower(substr($detailmyticketKeteranganData->keterangan,8)));
+																					?-->
+																					<!--? if($detailmyticketKeteranganData->keterangan=='MOVE TO WAREHOUSE'){ ?>
+																						<li><b> Move To : <font color="brown"><!--?=$subkalimat;?> </b></font></li>
+																					<!--? }elseif($detailmyticketKeteranganData->keterangan=='MOVE TO OTHER STORE'){ ?>
+																						<li><b> Move To : <font color="brown"><!--?=$subkalimat;?> </b></font></li>
+																					<!--? } ?-->																			   
+																			  <? } ?>	
+																		  </ul>
+																			<? } ?>	
+																		 <? } ?>																																					
+																		</td>																
+																	<td width="7%">
+																	<center><b><?=$rvCekDataEQx["TICKET_CREATEDATE"];?></b></center>
+																</td>
+	
+																		<td width="10%">
+																			<? 																			
+																				$cekItemName = ucwords(strtolower(substr($rvCekDataEQx["KETERANGAN"],8))); 
+																			?>	
+																			<? if($cekItemName=='Warehouse'){ ?>
+																					<center><font color="brown"><b><?=$cekItemName;?></b></font></center><br>																	
+																					<? if($rvCekDataEQx["TICKET_NEEDASSIST"]=='YES'){ ?>
+																						<center><font color="#000"><b>By : </font><font color="brown"><?='FSD';?></b></font></center><br>
+																					<? }elseif($rvCekDataEQx["TICKET_NEEDASSIST"]=='NO'){ ?>
+																						<center><font color="#000"><b>By : </font><font color="brown"><?='OPR';?></b></font></center><br>
+																					<? } ?>
+																			<? }elseif($cekItemName=='Other Store'){ ?>
+																					<center><font color="brown"><b><?=ucwords(strtoupper($rvCekDataEQx["TICKETTRANSFERTO_OUTLETNAME"]));?></b></font></center><br>																	
+																					<? if($rvCekDataEQx["TICKET_NEEDASSIST"]=='YES'){ ?>
+																						<center><font color="#000"><b>By : </font><font color="brown"><?='FSD';?></b></font></center><br>
+																					<? }elseif($rvCekDataEQx["TICKET_NEEDASSIST"]=='NO'){ ?>
+																						<center><font color="#000"><b>By : </font><font color="brown"><?='OPR';?></b></font></center><br>
+																					<? } ?>
+																			<? } ?>	
+																		</td>
+
+																	<td width="20%">								
+																	<? if($rvCekDataEQx["TICKETAPPROVALSTATUSID_AM"]=='2'){ ?>																		
+																		<font color="#000"><?='&nbsp;&nbsp;<b>Approval Status : </font><font color="brown"></b>&nbsp;&nbsp;Not Yet Responded.';?></font><br>
+																	<? }elseif($rvCekDataEQx["TICKETAPPROVALSTATUSID_AM"]=='1'){ ?>																		
+																		<font color="#000"><?='&nbsp;&nbsp;<b>Approval Status : </font><font color="blue">&nbsp;&nbsp;Approved.</b>';?></font><br>
+																	<? }elseif($rvCekDataEQx["TICKETAPPROVALSTATUSID_AM"]=='-'){ ?>																		
+																		<font color="#000"><?='&nbsp;&nbsp;<b>Approval Status : </font><font color="brown">&nbsp;&nbsp;Not Needed.</b>';?></font><br>
+																	<? }elseif($rvCekDataEQx["TICKETAPPROVALSTATUSID_AM"]=='0'){ ?>																		
+																		<font color="#000"><?='&nbsp;&nbsp;<b>Approval Status : </font><font color="red">&nbsp;&nbsp;Disapproved.</b>';?></font><br>
+																	<? } ?>																
+																																		
+																	<?='&nbsp;&nbsp;<b>Approval By :</b> <font color="brown">'.$rvCekDataEQx["TICKETAPPROVALBYNAME_AM"];?></font><br>																	
+																	<?='&nbsp;&nbsp;<b>Approval Date :</b> <font color="brown">'.$rvCekDataEQx["TICKETAPPROVALDATE_AM"];?></font><br>																	
+																	<?='&nbsp;&nbsp;<b>Approval Time :</b> <font color="brown">'.$rvCekDataEQx["TICKETAPPROVALTIME_AM"];?></font>
+																</td>
+																<td width="20%">																	
+																	<? if(($rvCekDataEQx["TICKETAPPROVALSTATUSID_AM"]=='1')&&($rvCekDataEQx["TICKETAPPROVALSTATUSID_ROM"]=='2')&&($rvCekDataEQx["TICKETAPPROVALSTATUSID_GMO"]=='-')){ ?>																		
+																		<font color="#000"><?='&nbsp;&nbsp;<b>Approval Status : </font><font color="brown">&nbsp;&nbsp;Not Yet Responded.</b>';?></font><br>																
+																	<? }elseif(($rvCekDataEQx["TICKETAPPROVALSTATUSID_AM"]=='0')&&($rvCekDataEQx["TICKETAPPROVALSTATUSID_ROM"]=='2')&&($rvCekDataEQx["TICKETAPPROVALSTATUSID_GMO"]=='-')){ ?>																		
+																		<font color="#000"><?='&nbsp;&nbsp;<b>Approval Status : </font><font color="brown">&nbsp;&nbsp;Not Needed.</b>';?></font><br>																
+																	<? }elseif(($rvCekDataEQx["TICKETAPPROVALSTATUSID_AM"]=='0')&&($rvCekDataEQx["TICKETAPPROVALSTATUSID_ROM"]=='-')){ ?>																		
+																		<font color="#000"><?='&nbsp;&nbsp;<b>Approval Status : </font><font color="brown">&nbsp;&nbsp;Not Needed.</b>';?></font><br>
+																	<? }elseif(($rvCekDataEQx["TICKETAPPROVALSTATUSID_AM"]=='2')&&($rvCekDataEQx["TICKETAPPROVALSTATUSID_ROM"]=='-')){ ?>																		
+																		<font color="black"><?='&nbsp;&nbsp;<b>Approval Status :&nbsp;&nbsp;-</b>';?></font><br>
+																	<? }elseif($rvCekDataEQx["TICKETAPPROVALSTATUSID_ROM"]=='1'){ ?>																		
+																		<font color="#000"><?='&nbsp;&nbsp;<b>Approval Status : </font><font color="blue">&nbsp;&nbsp;Approved.</b>';?></font><br>
+																	<? }elseif((($rvCekDataEQx["TICKETAPPROVALSTATUSID_AM"]=='1')||($rvCekDataEQx["TICKETAPPROVALSTATUSID_AM"]=='-'))&&($rvCekDataEQx["TICKETAPPROVALSTATUSID_ROM"]=='1')&&($rvCekDataEQx["TICKETAPPROVALSTATUSID_GMO"]=='1')){ ?>																		
+																		<font color="#000"><?='&nbsp;&nbsp;<b>Approval Status : </font><font color="blue">&nbsp;&nbsp;Approved.</b>';?></font><br>	
+																	<? }elseif($rvCekDataEQx["TICKETAPPROVALSTATUSID_ROM"]=='0'){ ?>																		
+																		<font color="#000"><?='&nbsp;&nbsp;<b>Approval Status : </font><font color="red">&nbsp;&nbsp;Disapproved.</b>';?></font><br>
+																	<? }else{ ?> <font color="#000"><?='&nbsp;&nbsp;<b>Approval Status : </font><font color="brown">&nbsp;&nbsp;Not Needed.</b>';?></font><br>	
+																	<? } ?>																		
+																	<?='&nbsp;&nbsp;<b>Approval By :</b> <font color="brown">'.$rvCekDataEQx["TICKETAPPROVALBYNAME_ROM"];?></font><br>																	
+																	<?='&nbsp;&nbsp;<b>Approval Date :</b> <font color="brown">'.$rvCekDataEQx["TICKETAPPROVALDATE_ROM"];?></font><br>																	
+																	<?='&nbsp;&nbsp;<b>Approval Time :</b> <font color="brown">'.$rvCekDataEQx["TICKETAPPROVALTIME_ROM"];?></font>
+																</td>
+																<td width="20%">																	
+																	<? if(($rvCekDataEQx["TICKETAPPROVALSTATUSID_GMO"]=='2')&&($rvCekDataEQx["TICKETAPPROVALSTATUSID_ROM"]=='1')){ ?>																		
+																		<font color="#000"><?='&nbsp;&nbsp;<b>Approval Status : </font><font color="brown"></b>&nbsp;&nbsp;Not Yet Responded.';?></font><br>																
+																	<? }elseif(($rvCekDataEQx["TICKETAPPROVALSTATUSID_GMO"]=='2')&&($rvCekDataEQx["TICKETAPPROVALSTATUSID_ROM"]=='0')){ ?>																		
+																		<font color="#000"><?='&nbsp;&nbsp;<b>Approval Status : </font><font color="brown">&nbsp;&nbsp;Not Needed.</b>';?></font><br>																
+																	<? }elseif(($rvCekDataEQx["TICKETAPPROVALSTATUSID_AM"]=='0')&&($rvCekDataEQx["TICKETAPPROVALSTATUSID_ROM"]=='0')&&($rvCekDataEQx["TICKETAPPROVALSTATUSID_GMO"]=='-')){ ?>																		
+																		<font color="#000"><?='&nbsp;&nbsp;<b>Approval Status : </font><font color="brown">&nbsp;&nbsp;Not Needed.</b>';?></font><br>
+																	<? }elseif(($rvCekDataEQx["TICKETAPPROVALSTATUSID_AM"]=='0')&&($rvCekDataEQx["TICKETAPPROVALSTATUSID_ROM"]=='2')&&($rvCekDataEQx["TICKETAPPROVALSTATUSID_GMO"]=='-')){ ?>																		
+																		<font color="#000"><?='&nbsp;&nbsp;<b>Approval Status : </font><font color="brown">&nbsp;&nbsp;Not Needed</b>';?></font><br>
+																	<? }elseif($rvCekDataEQx["TICKETAPPROVALSTATUSID_GMO"]=='1'){ ?>																		
+																		<font color="#000"><?='&nbsp;&nbsp;<b>Approval Status : </font><font color="blue">&nbsp;&nbsp;Approved.</b>';?></font><br>
+																	<? }elseif((($rvCekDataEQx["TICKETAPPROVALSTATUSID_AM"]=='1')||($rvCekDataEQx["TICKETAPPROVALSTATUSID_AM"]=='-'))&&($rvCekDataEQx["TICKETAPPROVALSTATUSID_ROM"]=='1')&&($rvCekDataEQx["TICKETAPPROVALSTATUSID_GMO"]=='1')){ ?>																		
+																		<font color="#000"><?='&nbsp;&nbsp;<b>Approval Status : </font><font color="blue">&nbsp;&nbsp;Approved.</b>';?></font><br>																	
+																	<? }elseif($rvCekDataEQx["TICKETAPPROVALSTATUSID_GMO"]=='0'){ ?>																		
+																		<font color="#000"><?='&nbsp;&nbsp;<b>Approval Status : </font><font color="red">&nbsp;&nbsp;Disapproved.</b>';?></font><br>
+																	<? }elseif(($rvCekDataEQx["TICKETAPPROVALSTATUSID_AM"]!='2')&&($rvCekDataEQx["TICKETAPPROVALSTATUSID_ROM"]!='2')&&($rvCekDataEQx["TICKETAPPROVALSTATUSID_GMO"]!='2')){ ?>
+																		<font color="#000"><?='&nbsp;&nbsp;<b>Approval Status : </font><font color="brown">&nbsp;&nbsp; Not Needed</b>';?></font><br>																			
+																	<? }elseif(($rvCekDataEQx["TICKETAPPROVALSTATUSID_AM"]=='2')&&($rvCekDataEQx["TICKETAPPROVALSTATUSID_ROM"]=='-')&&($rvCekDataEQx["TICKETAPPROVALSTATUSID_GMO"]=='-')){ ?> 
+																		 <font color="#000"><?='&nbsp;&nbsp;<b>Approval Status :&nbsp;&nbsp; -</b>';?></font><br>																			
+																	<? }elseif(($rvCekDataEQx["TICKETAPPROVALSTATUSID_AM"]=='0')&&(($rvCekDataEQx["TICKETAPPROVALSTATUSID_ROM"]=='-')||($rvCekDataEQx["TICKETAPPROVALSTATUSID_ROM"]=='2'))&&
+																	   (($rvCekDataEQx["TICKETAPPROVALSTATUSID_GMO"]=='2')||($rvCekDataEQx["TICKETAPPROVALSTATUSID_GMO"]=='-'))){ ?> 
+																		 <font color="#000"><?='&nbsp;&nbsp;<b>Approval Status : </font><font color="brown">&nbsp;&nbsp; Not Needed</b>';?></font><br>																			
+																	<? }else{ ?> <font color="#000"><?='&nbsp;&nbsp;<b>Approval Status : </font><font color="brown">&nbsp;&nbsp; -</b>';?></font><br>																			
+																	<? } ?>																			
+																	<?='&nbsp;&nbsp;<b>Approval By :</b> <font color="brown">'.$rvCekDataEQx["TICKETAPPROVALBYNAME_GMO"];?></font><br>																	
+																	<?='&nbsp;&nbsp;<b>Approval Date :</b> <font color="brown">'.$rvCekDataEQx["TICKETAPPROVALDATE_GMO"];?></font><br>																	
+																	<?='&nbsp;&nbsp;<b>Approval Time :</b> <font color="brown">'.$rvCekDataEQx["TICKETAPPROVALTIME_GMO"];?></font>
+																</td>																
+															
+																
+															</tr>	
+														<? } ?>									
+
+									
+									<!-- SMALLWARE REQUEST ITEM -->	
+									<? #} ?>	
+
+													</tbody>
+												</table>	
+					</div>	<br>
+		<!--? }elseif($detailmyticket->statuslaporan_name=='Problem Teknisi Store'){ ?-->
+	<? }elseif($detailmyticket->statuslaporan_name=='Problem')
+	{ ?>
+		<b><u>PERMASALAHAN DARI CABANG (
+			<?
+				$qcektipebrgsx = mysql_query("SELECT kode_tipebrg FROM ITH_TICKET_HEADER where ticket_id = '$_GET[pid]'");
+				$rcektipebrgsx = mysql_fetch_object($qcektipebrgsx);
+				if($rcektipebrgsx->kode_tipebrg=='RQS-03-000112'){ 
+			?>
+				<?="EQUIPMENT";?>
+			<?	}elseif($rcektipebrgsx->kode_tipebrg=='RQS-03-000113'){  ?>
+				<?="SMALLWARE";?>
+			<?	}elseif($rcektipebrgsx->kode_tipebrg=='RQS-03-000114'){ ?>
+				<?="SPAREPART";?>
+			<?	}
+			?>
+		)</u></b></center><br>		
+			<script src="jquery/jquery.min.js"></script>
+			<script>
+				$(document).ready(function()
+				{
+					$("#equipmentsrc").on("keyup", function() 
+					{
+						var value = $(this).val().toLowerCase();
+						$("#myCodes tr").filter(function() 
+						{
+							$(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+						});
+					});
+					$("#smallwaresrc").on("keyup", function() 
+					{
+						var value = $(this).val().toLowerCase();
+						$("#myCodes tr").filter(function() 
+						{
+							$(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+						});
+					});
+					$("#sparepartsrc").on("keyup", function() 
+					{
+						var value = $(this).val().toLowerCase();
+						$("#myCodes tr").filter(function() 
+						{
+							$(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+						});
+					});
+				});
+			</script>
+			<style>
+				table.blueTable 
+				{
+					border: 1px solid #1C6EA4; background-color: #EEEEEE; width: 100%;
+					text-align: left; border-collapse: collapse; overflow-x:scroll;height:100px; position:relative;
+				}
+				table.blueTable td, table.blueTable th 
+				{
+					border: 1px solid #AAAAAA; padding: 3px 2px;				  
+				}
+				table.blueTable tbody td { font-size: 13px; }
+				table.blueTable tr:nth-child(even) { background: #D0E4F5; }
+				table.blueTable thead 
+				{ 
+					background: #1C6EA4; background: -moz-linear-gradient(top, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+					background: -webkit-linear-gradient(top, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+					background: linear-gradient(to bottom, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+					border-bottom: 2px solid #444444;
+				}
+				table.blueTable thead th 
+				{
+					font-size: 12px; text-align:center; font-weight: bold; color: #000; border-left: 2px solid #D0E4F5;
+				}
+				table.blueTable thead th:first-child { border-left: none; }
+				table.blueTable tfoot 
+				{ 
+					font-size: 14px; font-weight: bold; color: #000; background: #D0E4F5;
+					background: -moz-linear-gradient(top, #dcebf7 0%, #d4e6f6 66%, #D0E4F5 100%);
+					background: -webkit-linear-gradient(top, #dcebf7 0%, #d4e6f6 66%, #D0E4F5 100%);
+					background: linear-gradient(to bottom, #dcebf7 0%, #d4e6f6 66%, #D0E4F5 100%);
+					border-top: 2px solid #444444;
+				}
+				table.blueTable tfoot td { font-size: 14px; }
+				table.blueTable tfoot .links { text-align: right; }
+				table.blueTable tfoot .links a{ display: inline-block; background: #1C6EA4; color: #000; padding: 2px 8px; border-radius: 5px; }			
+				</style>
+				<input id="equipmentsrc" type="text" placeholder="Search..">
+					<table class="blueTable" border="1"> 
+						<thead>
+							<tr>
+								<?  
+									$objConnect = oci_connect('fsd', 'fsd', 'localhost:1521/XE'); 
+								?>														
+									<th width="7%">No&nbsp;Permasalahan</th>
+									<th width="17%">Tgl&nbsp;Permasalahan</th>
+									<th width="20%">Kode&nbsp;Barang</th>
+									<th width="20%">Nama&nbsp;Barang</th>
+									<!--<th width="15%">Jumlah<br>Permasal</th>-->
+									<th width="10%" style="display:none;">STK<br>BARU</th>
+									<th width="10%" style="display:none;">STK<br>BAIK</th>
+									<th width="10%" style="display:none;">STK<br>LAMA</th>
+							</tr>													
+						</thead>
+					</table>								
+					<div style="width:100%; height:100px; overflow:auto;position:relative;">
+						<table class="blueTable" border="1">
+							<tbody id="myCodes">
+								<?  
+									$qcektipebrgdetail = mysql_query("SELECT ITH_TICKET_HEADER.ticket_id, ITH_TICKET_HEADER.kode_tipebrg 
+															FROM ITH_TICKET_HEADER 
+															JOIN ITH_TIPEBRG ON ITH_TICKET_HEADER.kode_tipebrg = ITH_TIPEBRG.kode_tipebrg
+															WHERE ITH_TICKET_HEADER.kode_tipebrg != '' AND ITH_TICKET_HEADER.ticket_id = '".$_GET['pid']."'");
+									$rcektipebrgdetail = mysql_fetch_object($qcektipebrgdetail);	
+									if($rcektipebrgdetail->kode_tipebrg == 'FSDBRGEQ') /* EQUIPMENT INFO DI TIKET DETAIL */
+									{
+										echo "TEST PROBLEM-1";
+										$qvCekDataEQ = mysql_query("SELECT DISTINCT ITH_TIPEBARANG_KODE.NO_PERMINTAAN, ITH_TIPEBARANG_KODE.KODE_TIPEBARANG, ITH_TIPEBARANG_KODE.KODE_TIPEBARANG_SW, 
+														ITH_TIPEBARANG_KODE.NAMA_TIPEBARANG, ITH_TICKET_HEADER.ticket_createdate FROM ITH_TIPEBARANG_KODE 
+														JOIN ITH_TICKET_HEADER ON ITH_TIPEBARANG_KODE.ticket_id = ITH_TICKET_HEADER.ticket_id
+														WHERE ITH_TIPEBARANG_KODE.ticket_id = '".$_GET['pid']."' GROUP BY ITH_TIPEBARANG_KODE.KODE_TIPEBARANG ASC");														
+										while($rvSCatShowEQ = mysql_fetch_array($qvCekDataEQ)){					
+															
+															?>  												
+															<tr>												
+																<td width="7%">
+																	<center><?=$rvSCatShowEQ["NO_PERMINTAAN"];?></center>
+																</td>
+																<td width="17%">
+																	<center><?=$rvSCatShowEQ["ticket_createdate"];?></center>
+																</td>
+																
+																<td width="20%">
+																<center><?=$rvSCatShowEQ["KODE_TIPEBARANG"];?></center>
+																</td>														
+																<td width="20%">
+																<center><?=$rvSCatShowEQ["NAMA_TIPEBARANG"];?></center>
+																</td>	
+																<td width="15%">n/a</td>																
+																<td width="15%">n/a</td>																	
+															</tr>
+														<? } ?>	
+									<? }elseif($rcektipebrgdetail->kode_tipebrg == 'FSDBRGSW'){ 
+										$qvCekDataSW = mysql_query("SELECT DISTINCT ITH_TIPEBARANG_KODE.NO_PERMINTAAN, ITH_TIPEBARANG_KODE.KODE_TIPEBARANG, ITH_TIPEBARANG_KODE.KODE_TIPEBARANG_SW, 
+														ITH_TIPEBARANG_KODE.NAMA_TIPEBARANG, ITH_TICKET_HEADER.ticket_createdate FROM ITH_TIPEBARANG_KODE 
+														JOIN ITH_TICKET_HEADER ON ITH_TIPEBARANG_KODE.ticket_id = ITH_TICKET_HEADER.ticket_id
+														WHERE ITH_TIPEBARANG_KODE.ticket_id = '$_GET[pid]' GROUP BY ITH_TIPEBARANG_KODE.KODE_TIPEBARANG ASC");
+															
+														
+															while($rvSCatShowSW = mysql_fetch_array($qvCekDataSW)){
+															?>  												
+															<tr>												
+																<td width="7%">
+																	<center><?=$rvSCatShowSW["NO_PERMINTAAN"];?></center>
+																</td>
+																<td width="17%">
+																	<center><?=$rvSCatShowSW["ticket_createdate"];?></center>
+																</td>
+																<td width="20%">
+																<center><?=$rvSCatShowSW["KODE_TIPEBARANG_SW"];?></center>
+																</td>						
+															<? 
+															$objConnectx = oci_connect('fsd', 'fsd', 'localhost:1521/XE'); 
+															$qceknamabrg = "SELECT KODE_BARANG, NAMA_BARANG FROM FSDBRGSP 
+															WHERE KODE_BARANG = '".$rvSCatShowSW["KODE_TIPEBARANG_SW"]."'";  
+															$objParsenamabrg = oci_parse ($objConnectx, $qceknamabrg);  
+															oci_execute ($objParsenamabrg,OCI_DEFAULT);
+															while($objResultnamabrg = oci_fetch_array($objParsenamabrg,OCI_BOTH)){
+															#$namabarangs = $objResultnamabrg['NAMA_BARANG'];
+															$namabarangs = preg_replace('/[^A-Za-z0-9\  ]/', '', $objResultnamabrg['NAMA_BARANG']);
+															?>																
+																<td width="20%">
+																	<center><?=$namabarangs;?>
+																	<?
+																	#echo "<br>SELECT KODE_BARANG, NAMA_BARANG FROM FSDBRGSP 
+																	#	  <br>WHERE KODE_BARANG = '".$rvSCatShowSW["KODE_TIPEBARANG_SW"]."'";
+																	?>
+																	</center>
+																</td>			
+															<? } oci_close($objConnectx); ?>		
+															</tr>
+														<? } ?>										
+										
+									<? }elseif($rcektipebrgdetail->kode_tipebrg == 'FSDBRGSP'){ 
+										$qvCekDataSP = mysql_query("SELECT DISTINCT ITH_TIPEBARANG_KODE.NO_PERMINTAAN, ITH_TIPEBARANG_KODE.KODE_TIPEBARANG, 
+														ITH_TIPEBARANG_KODE.KODE_TIPEBARANG_SW, ITH_TIPEBARANG_KODE.KODE_TIPEBARANG_SP, 
+														ITH_TIPEBARANG_KODE.NAMA_TIPEBARANG, ITH_TICKET_HEADER.ticket_createdate FROM ITH_TIPEBARANG_KODE 
+														JOIN ITH_TICKET_HEADER ON ITH_TIPEBARANG_KODE.ticket_id = ITH_TICKET_HEADER.ticket_id
+														WHERE ITH_TIPEBARANG_KODE.ticket_id = '".$_GET['pid']."' GROUP BY ITH_TIPEBARANG_KODE.KODE_TIPEBARANG ASC");														
+										while($rvSCatShowSP = mysql_fetch_array($qvCekDataSP)){		
+															?>  												
+															<tr>												
+																<td width="7%">
+																	<center><?=$rvSCatShowSP["NO_PERMINTAAN"];?></center>
+																</td>
+																<td width="17%">
+																	<center><?=$rvSCatShowSP["ticket_createdate"];?></center>
+																</td>
+																
+																<td width="20%">
+																<center><?=$rvSCatShowSP["KODE_TIPEBARANG_SP"];?></center>
+																</td>														
+																<td width="20%">
+																<center><?=$rvSCatShowSP["NAMA_TIPEBARANG"];?></center>
+																</td>														
+															</tr>
+														<? } ?>										
+										
+
+									<? } ?>	
+													</tbody>
+												</table>	
+												</div>	<br>
+	<? } ?>	
+<? 
+	#}elseif(($rCekReffTicket->ticketreferencestatus_id!='1')||($rCekReffTicket->ticketreferencestatus_id==' '))
+	#}elseif(($rCekReffTicket->ticketreferencestatus_id!='1')||($rCekReffTicket->ticketreferencestatus_id==' '))
+	}elseif($rCekReffTicket->ticketreferencestatus_id=='1')
+	{
+	/* ###################### REQUEST EQUIPMENT FROM STORE (REFERENCE TIKET/REF TIKET) ######################## */
+?>
+		
+		<!--? if($detailmyticket->statuslaporan_name=='Request Store'){ ?-->
+		<? if($detailmyticket->statuslaporan_name=='Request'){ ?>
+				<? 
+					$qCekStatusTicketReffx = mysql_query("SELECT ticket_id, ticketreference_id, ticketreferencestatus_id 
+														 FROM ITH_TICKET_HEADER WHERE ticket_id = '".$_GET['pid']."'");
+					$rCekStatusTicketReffx = mysql_fetch_object($qCekStatusTicketReffx);
+					if($rCekStatusTicketReffx->ticketreferencestatus_id=='1'){
+				?>					
+					<b><u>REQUEST EQUIPMENT FROM STORE [REFERENCE TIKET : (<?='<font color="blue"><b>'.$rCekStatusTicketReffx->ticketreference_id.'</b></font>';?>)](
+				<? } ?>	
+			<?
+				$qcektipebrgsx = mysql_query("SELECT kode_tipebrg FROM ITH_TICKET_HEADER where ticket_id = '$_GET[pid]'");
+				$rcektipebrgsx = mysql_fetch_object($qcektipebrgsx);
+				if($rcektipebrgsx->kode_tipebrg=='RQS-03-000112'){ 
+			?>
+				<?="EQUIPMENT";?>
+			<?	}elseif($rcektipebrgsx->kode_tipebrg=='RQS-03-000113'){  ?>
+				<?="SMALLWARE";?>
+			<?	}elseif($rcektipebrgsx->kode_tipebrg=='RQS-03-000114'){ ?>
+				<?="SPAREPART";?>
+			<?	}
+			?>
+		)</u></b></center><br>		
+			<script src="jquery/jquery.min.js"></script>
+			<!--<script>
+				$(document).ready(function()
+				{
+					$("#equipmentsrc").on("keyup", function() 
+					{
+						var value = $(this).val().toLowerCase();
+						$("#myCodes tr").filter(function() 
+						{
+							$(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+						});
+					});
+					$("#smallwaresrc").on("keyup", function() 
+					{
+						var value = $(this).val().toLowerCase();
+						$("#myCodes tr").filter(function() 
+						{
+							$(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+						});
+					});
+					$("#sparepartsrc").on("keyup", function() 
+					{
+						var value = $(this).val().toLowerCase();
+						$("#myCodes tr").filter(function() 
+						{
+							$(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+						});
+					});
+				});
+			</script>-->
+			<style>
+				table.blueTable 
+				{
+					border: 1px solid #1C6EA4; background-color: #EEEEEE; width: 100%;
+					text-align: left; border-collapse: collapse; overflow-x:scroll;height:100px; position:relative;
+				}
+				table.blueTable td, table.blueTable th 
+				{
+					border: 1px solid #AAAAAA; padding: 3px 2px;				  
+				}
+				table.blueTable tbody td { font-size: 13px; }
+				table.blueTable tr:nth-child(even) { background: #D0E4F5; }
+				table.blueTable thead 
+				{ 
+					background: #1C6EA4; background: -moz-linear-gradient(top, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+					background: -webkit-linear-gradient(top, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+					background: linear-gradient(to bottom, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+					border-bottom: 2px solid #444444;
+				}
+				table.blueTable thead th 
+				{
+					font-size: 12px; text-align:center; font-weight: bold; color: #000; border-left: 2px solid #D0E4F5;
+				}
+				table.blueTable thead th:first-child { border-left: none; }
+				table.blueTable tfoot 
+				{ 
+					font-size: 14px; font-weight: bold; color: #000; background: #D0E4F5;
+					background: -moz-linear-gradient(top, #dcebf7 0%, #d4e6f6 66%, #D0E4F5 100%);
+					background: -webkit-linear-gradient(top, #dcebf7 0%, #d4e6f6 66%, #D0E4F5 100%);
+					background: linear-gradient(to bottom, #dcebf7 0%, #d4e6f6 66%, #D0E4F5 100%);
+					border-top: 2px solid #444444;
+				}
+				table.blueTable tfoot td { font-size: 14px; }
+				table.blueTable tfoot .links { text-align: right; }
+				table.blueTable tfoot .links a{ display: inline-block; background: #1C6EA4; color: #000; padding: 2px 8px; border-radius: 5px; }			
+				</style>
+				<!--<input id="equipmentsrc" type="text" placeholder="Search..">-->
+					<table class="blueTable" border="1"> 
+						<thead>
+							<tr>
+								<?  
+									$objConnect = oci_connect('fsd', 'fsd', 'localhost:1521/XE'); 
+								?>														
+									<th width="7%">No<br>Permintaan...</th>
+									<th width="17%">Tgl<br>Permintaan</th>
+									<th width="20%">Kode<br>Barang Pesanan</th>
+									<th width="20%">Nama<br>Barang Pesanan</th>
+									<th width="15%">Jumlah<br>Permintaan</th>
+									<th width="15%">Status<br>Barang</th>
+									<th width="10%" style="display:none;">STK<br>BARU</th>
+									<th width="10%" style="display:none;">STK<br>BAIK</th>
+									<th width="10%" style="display:none;">STK<br>LAMA</th>
+							</tr>													
+						</thead>
+					</table>								
+					<div style="width:100%; height:100px; overflow:auto;position:relative;">
+						<table class="blueTable" border="1">
+							<tbody id="myCodes">
+							<? 
+								$qCekStatusTicket = mysql_query("SELECT ticketstatus_id, ticketreference_id
+								FROM ITH_TICKET_HEADER WHERE ticket_id = '".$_GET['pid']."'");
+								$rCekStatusTicket = mysql_fetch_object($qCekStatusTicket);
+								if(($rCekStatusTicket->ticketstatus_id==1)&&($rCekStatusTicket->ticketreference_id=='')){ //STATUS OPEN DAN BELUM ADA TIKET REFERENCE
+							?>
+								
+							<? }elseif(($rCekStatusTicket->ticketstatus_id==1)&&($rCekStatusTicket->ticketreference_id!='')){ //STATUS OPEN DAN SUDAH ADA TIKET REFERENCE ?>	
+								
+							
+								<?  
+									$qcektipebrg = mysql_query("SELECT ITH_TICKET_HEADER.ticket_id, ITH_TICKET_HEADER.kode_tipebrg FROM ITH_TICKET_HEADER 
+																	JOIN ITH_TIPEBRG ON ITH_TICKET_HEADER.kode_tipebrg = ITH_TIPEBRG.kode_tipebrg
+																	WHERE ITH_TICKET_HEADER.ticket_id = '$_GET[pid]'");
+									$rcektipebrg = mysql_fetch_object($qcektipebrg);									
+									$qcektipebrgdetail = mysql_query("SELECT DISTINCT ITH_TICKET_HEADER.ticket_id, ITH_TICKET_HEADER.kode_tipebrg 
+															FROM ITH_TICKET_HEADER 
+															JOIN ITH_TIPEBRG ON ITH_TICKET_HEADER.kode_tipebrg = ITH_TIPEBRG.kode_tipebrg
+															WHERE ITH_TICKET_HEADER.kode_tipebrg != '' AND ITH_TICKET_HEADER.ticket_id = '$_GET[pid]'");
+									$rcektipebrgdetail = mysql_fetch_object($qcektipebrgdetail);	
+									if($rcektipebrgs->kode_tipebrg=='RQS-03-000112') /* EQUIPMENT INFO DI TIKET DETAIL */
+									{
+										$qvCekDataEQ = mysql_query("SELECT DISTINCT ticket_id, no_permintaan, request_by, kode_tipebarang, kode_tipebarang_sw, kode_tipebarang_sp,
+															kuantitas, nama_tipebarang, nama_tipebarang_sw, nama_tipebarang_sp
+															FROM ITH_TIPEBARANG_KODE
+															WHERE ticket_id = '$_GET[pid]'");
+															$rvCekDataEQ = mysql_fetch_object($qvCekDataEQ);
+															
+															$objConnectShowEQ = oci_connect('fsd', 'fsd', 'localhost:1521/XE'); 
+														/*	$qShowEQ = "select FSDORDEC.NO_PERMINTAAN, FSDORDEC.TGL_PERMINTAAN, FSDORDEC.TGL_BUAT_FSD, FSDORDEC.KODE_BARANG, 
+															FSDBRGEQ.NAMA_BARANG,
+															FSDORDEC.JUMLAH_PERMINTAAN, FSDORDEC.JUMLAH_ORDER, FSDORDEC.KIRIM_DARI_STOK, FSDORDEC.TGL_DISETUJUI, 
+															FSDORDEC.NOMOR_RO, FSDORDEC.STATUS_PERMINTAAN
+															from FSDORDEC 
+															JOIN FSDBRGEQ ON FSDORDEC.KODE_BARANG = FSDBRGEQ.KODE_BARANG
+															where NO_PERMINTAAN = '$rvCekDataEQ->no_permintaan'
+															AND JUMLAH_PERMINTAAN IS NOT NULL order by FSDORDEC.TGL_PERMINTAAN DESC";  
+														*/
+											$qCekStatusTiketStore = mysql_query("SELECT ticket_id, ticketstatus_id, ticketapprovalstatus_id, ticketapprovalstatus_id2, ticketapprovalstatus_id3 
+																				FROM ITH_TICKET_HEADER WHERE ticket_id = '$_GET[pid]'");
+											$rCekStatusTiketStore = mysql_fetch_object($qCekStatusTiketStore);
+											if(($rCekStatusTiketStore->ticketapprovalstatus_id!='1')&&($rCekStatusTiketStore->ticketapprovalstatus_id2!='1')&&($rCekStatusTiketStore->ticketapprovalstatus_id3!='1'))
+											{	
+															echo "<br>ZZZ....";
+															$con = mysql_connect("localhost","usrservicedesk","kfc14022");
+																		mysql_select_db("servicedesk",$con); //@session_start();	
+															$qvCekDataEQ = mysql_query("SELECT DISTINCT ticket_id, no_permintaan, request_by, kode_tipebarang, kode_tipebarang_sw, kode_tipebarang_sp,
+															kuantitas, nama_tipebarang, nama_tipebarang_sw, nama_tipebarang_sp
+															FROM ITH_TIPEBARANG_KODE
+															WHERE ticket_id = '$_GET[pid]'");
+															$rvCekDataEQ = mysql_fetch_object($qvCekDataEQ);												
+															#echo "<br>Nomer Permintaan : ".$rvCekDataEQ->no_permintaan;
+															$objConnectShowEQ = oci_connect('fsd', 'fsd', 'localhost:1521/XE');
+															$qShowEQ = "select DISTINCT FSDORDEC_TEMP.NO_PERMINTAAN, FSDORDEC_TEMP.TGL_PERMINTAAN, FSDORDEC_TEMP.TGL_BUAT_FSD, FSDORDEC_TEMP.KODE_BARANG, 
+															FSDBRGEQ.NAMA_BARANG,
+															FSDORDEC_TEMP.JUMLAH_PERMINTAAN, FSDORDEC_TEMP.JUMLAH_ORDER, FSDORDEC_TEMP.KIRIM_DARI_STOK, FSDORDEC_TEMP.TGL_DISETUJUI, 
+															FSDORDEC_TEMP.NOMOR_RO, FSDORDEC_TEMP.STATUS_PERMINTAAN
+															from FSDORDEC_TEMP 
+															JOIN FSDBRGEQ ON FSDORDEC_TEMP.KODE_BARANG = FSDBRGEQ.KODE_BARANG
+															where FSDORDEC_TEMP.NO_PERMINTAAN = '".$rvCekDataEQ->no_permintaan."'
+															order by FSDORDEC_TEMP.TGL_PERMINTAAN DESC";  
+															$qobjParseShowEQ = oci_parse ($objConnectShowEQ, $qShowEQ);  
+															oci_execute ($qobjParseShowEQ,OCI_DEFAULT);   
+											
+											}elseif
+											((($rCekStatusTiketStore->ticketapprovalstatus_id=='1')&&($rCekStatusTiketStore->ticketapprovalstatus_id2=='1')&&($rCekStatusTiketStore->ticketapprovalstatus_id3=='1'))||
+											(($rCekStatusTiketStore->ticketapprovalstatus_id=='1')&&($rCekStatusTiketStore->ticketapprovalstatus_id2=='2')&&($rCekStatusTiketStore->ticketapprovalstatus_id3=='2'))||
+											(($rCekStatusTiketStore->ticketapprovalstatus_id=='1')&&($rCekStatusTiketStore->ticketapprovalstatus_id2=='1')&&($rCekStatusTiketStore->ticketapprovalstatus_id3=='2'))||
+											(($rCekStatusTiketStore->ticketapprovalstatus_id=='2')&&($rCekStatusTiketStore->ticketapprovalstatus_id2=='2')&&($rCekStatusTiketStore->ticketapprovalstatus_id3=='1'))||
+											(($rCekStatusTiketStore->ticketapprovalstatus_id=='2')&&($rCekStatusTiketStore->ticketapprovalstatus_id2=='1')&&($rCekStatusTiketStore->ticketapprovalstatus_id3=='1'))||
+											(($rCekStatusTiketStore->ticketapprovalstatus_id=='1')&&($rCekStatusTiketStore->ticketapprovalstatus_id2=='2')&&($rCekStatusTiketStore->ticketapprovalstatus_id3=='1')))
+											{	
+														##echo "Test 2 REff Tiket";										
+														/*	$qShowEQ = "select FSDORDEC.NO_PERMINTAAN, FSDORDEC.TGL_PERMINTAAN, FSDORDEC.TGL_BUAT_FSD, FSDORDEC.KODE_BARANG, 
+															FSDBRGEQ.NAMA_BARANG,
+															FSDORDEC.JUMLAH_PERMINTAAN, FSDORDEC.JUMLAH_ORDER, FSDORDEC.KIRIM_DARI_STOK, FSDORDEC.TGL_DISETUJUI, 
+															FSDORDEC.NOMOR_RO, FSDORDEC.STATUS_PERMINTAAN
+															from FSDORDEC 
+															JOIN FSDBRGEQ ON FSDORDEC.KODE_BARANG = FSDBRGEQ.KODE_BARANG
+															where NO_PERMINTAAN = '$rvCekDataEQ->no_permintaan'
+															AND JUMLAH_PERMINTAAN IS NOT NULL order by FSDORDEC.TGL_PERMINTAAN DESC";  */
+													$con = mysql_connect("localhost","usrservicedesk","kfc14022");
+															mysql_select_db("servicedesk",$con); 	
+													$qCekStatusTiketXX = mysql_query("SELECT ticketstatus_id FROM ITH_TICKET_HEADER
+																					WHERE ticket_id = '".$_GET['pid']."'");	
+													$rCekStatusTiketXX = mysql_fetch_object($qCekStatusTiketXX);
+													if($rCekStatusTiketXX->ticketstatus_id=='1')
+													{		
+														##echo "<br>TIKET REFF OPEN";
+														$qCNmrROEQ = "SELECT 
+																	FSDORDEC_TEMP.KODE_CABANG, MSTCBGDT.NAMA_CABANG, FSDORDEC_TEMP.NO_PERMINTAAN, 
+																	FSDORDEC_TEMP.NOMOR_RO,FSDORDEC_TEMP.TGL_PERMINTAAN, FSDORDEC_TEMP.KODE_BARANG, 
+																	FSDBRGEQ.NAMA_BARANG, FSDORDEC_TEMP.JUMLAH_PERMINTAAN,FSDORDEC_TEMP.STATUS_PERMINTAAN,FSDROEQC.STATUS
+																	FROM FSDORDEC_TEMP 
+																	JOIN MSTCBGDT ON FSDORDEC_TEMP.KODE_CABANG = MSTCBGDT.CABANG_HEADER
+																	JOIN FSDBRGEQ ON FSDORDEC_TEMP.KODE_BARANG = FSDBRGEQ.KODE_BARANG
+																	JOIN FSDROEQC ON FSDORDEC_TEMP.NOMOR_RO = FSDROEQC.NOMOR_RO
+																	WHERE FSDORDEC_TEMP.NO_PERMINTAAN = '".$rvCekDataEQ->no_permintaan."'";  												
+
+														$qobjParseCNmrROEQ = oci_parse ($objConnectShowEQ, $qCNmrROEQ);  
+																		   oci_execute ($qobjParseCNmrROEQ,OCI_DEFAULT); 
+														$rvCNmrROEQ = oci_fetch_array($qobjParseCNmrROEQ,OCI_BOTH);	
+													}elseif($rCekStatusTiketXX->ticketstatus_id=='2'){
+														$qCNmrROEQ = "SELECT 
+																	FSDORDEC.KODE_CABANG, MSTCBGDT.NAMA_CABANG, FSDORDEC.NO_PERMINTAAN, 
+																	FSDORDEC.NOMOR_RO,FSDORDEC.TGL_PERMINTAAN, FSDORDEC.KODE_BARANG, 
+																	FSDBRGEQ.NAMA_BARANG, FSDORDEC.JUMLAH_PERMINTAAN,FSDORDEC.STATUS_PERMINTAAN,FSDROEQC.STATUS
+																	FROM FSDORDEC 
+																	JOIN MSTCBGDT ON FSDORDEC.KODE_CABANG = MSTCBGDT.CABANG_HEADER
+																	JOIN FSDBRGEQ ON FSDORDEC.KODE_BARANG = FSDBRGEQ.KODE_BARANG
+																	JOIN FSDROEQC ON FSDORDEC.NOMOR_RO = FSDROEQC.NOMOR_RO
+																	WHERE FSDORDEC.NO_PERMINTAAN = '".$rvCekDataEQ->no_permintaan."'";  
+														$qobjParseCNmrROEQ = oci_parse ($objConnectShowEQ, $qCNmrROEQ);  
+																		   oci_execute ($qobjParseCNmrROEQ,OCI_DEFAULT); 
+														$rvCNmrROEQ = oci_fetch_array($qobjParseCNmrROEQ,OCI_BOTH);	
+														
+													}	
+												if($rvCNmrROEQ['NOMOR_RO']==' '){
+														#echo "<br>TIDAK ADA NOMOR RO";
+													$con = mysql_connect("localhost","usrservicedesk","kfc14022");
+															mysql_select_db("servicedesk",$con); 	
+													$qCekStatusTiketX = mysql_query("SELECT ticketstatus_id FROM ITH_TICKET_HEADER
+																					WHERE ticket_id = '".$_GET['pid']."'");	
+													$rCekStatusTiketX = mysql_fetch_object($qCekStatusTiketX);
+													if($rCekStatusTiketX->ticketstatus_id=='1')
+													{	 	#echo "ON PROCESS ZZZ";	 
+															#$objConnectShowEQ = oci_connect('fsd', 'fsd', 'localhost:1521/XE'); 											
+																$qShowEQ = "select FSDORDEC_TEMP.NO_PERMINTAAN, FSDORDEC_TEMP.TGL_PERMINTAAN, FSDORDEC_TEMP.TGL_BUAT_FSD, FSDORDEC_TEMP.KODE_BARANG, 
+																FSDBRGEQ.NAMA_BARANG,
+																FSDORDEC_TEMP.JUMLAH_PERMINTAAN, FSDORDEC_TEMP.JUMLAH_ORDER, FSDORDEC_TEMP.KIRIM_DARI_STOK, FSDORDEC_TEMP.TGL_DISETUJUI, 
+																FSDORDEC_TEMP.NOMOR_RO, FSDORDEC_TEMP.STATUS_PERMINTAAN,FSDROEQC.STATUS
+																from FSDORDEC_TEMP 
+																JOIN FSDBRGEQ ON FSDORDEC_TEMP.KODE_BARANG = FSDBRGEQ.KODE_BARANG
+																JOIN FSDROEQC ON FSDORDEC_TEMP.NOMOR_RO = FSDROEQC.NOMOR_RO
+																where FSDORDEC_TEMP.NO_PERMINTAAN = '".$rvCekDataEQ->no_permintaan."'";
+																$qobjParseShowEQ = oci_parse ($objConnectShowEQ, $qShowEQ);  
+																	   oci_execute ($qobjParseShowEQ,OCI_DEFAULT); 															
+													}													
+													if($rCekStatusTiketX->ticketstatus_id=='2')
+													{	 	#echo "ON PROCESS ZZZ";	 
+															#$objConnectShowEQ = oci_connect('fsd', 'fsd', 'localhost:1521/XE'); 											
+																$qShowEQ = "select FSDORDEC.NO_PERMINTAAN, FSDORDEC.TGL_PERMINTAAN, FSDORDEC.TGL_BUAT_FSD, FSDORDEC.KODE_BARANG, 
+																FSDBRGEQ.NAMA_BARANG,
+																FSDORDEC.JUMLAH_PERMINTAAN, FSDORDEC.JUMLAH_ORDER, FSDORDEC.KIRIM_DARI_STOK, FSDORDEC.TGL_DISETUJUI, 
+																FSDORDEC.NOMOR_RO, FSDORDEC.STATUS_PERMINTAAN,FSDROEQC.STATUS
+																from FSDORDEC 
+																JOIN FSDBRGEQ ON FSDORDEC.KODE_BARANG = FSDBRGEQ.KODE_BARANG
+																JOIN FSDROEQC ON FSDORDEC.NOMOR_RO = FSDROEQC.NOMOR_RO
+																where FSDORDEC.NO_PERMINTAAN = '".$rvCekDataEQ->no_permintaan."'";
+																$qobjParseShowEQ = oci_parse ($objConnectShowEQ, $qShowEQ);  
+																	   oci_execute ($qobjParseShowEQ,OCI_DEFAULT); 															
+													}													
+												}elseif($rvCNmrROEQ['NOMOR_RO']!=' '){	 
+													$con = mysql_connect("localhost","usrservicedesk","kfc14022");
+																		mysql_select_db("servicedesk",$con); //@session_start();												
+													$qCekStatusTiketX = mysql_query("SELECT ticketstatus_id FROM ITH_TICKET_HEADER
+																						WHERE ticket_id = '".$_GET['pid']."'");	
+													$rCekStatusTiketX = mysql_fetch_object($qCekStatusTiketX);
+													if($rCekStatusTiketX->ticketstatus_id=='2')
+													{		#echo "<br>ON PROCESS";										
+															$qShowEQ = "select DISTINCT FSDORDEC.NO_PERMINTAAN, FSDORDEC.TGL_PERMINTAAN, FSDORDEC.TGL_BUAT_FSD, FSDORDEC.KODE_BARANG, 
+															FSDBRGEQ.NAMA_BARANG,
+															FSDORDEC.JUMLAH_PERMINTAAN, FSDORDEC.JUMLAH_ORDER, FSDORDEC.KIRIM_DARI_STOK, FSDORDEC.TGL_DISETUJUI, 
+															FSDORDEC.NOMOR_RO, FSDORDEC.STATUS_PERMINTAAN,FSDROEQC.STATUS
+															from FSDORDEC 
+															JOIN FSDBRGEQ ON FSDORDEC.KODE_BARANG = FSDBRGEQ.KODE_BARANG
+															JOIN FSDROEQC ON FSDORDEC.NOMOR_RO = FSDROEQC.NOMOR_RO
+															where FSDORDEC.NOMOR_RO = '".$rvCNmrROEQ['NOMOR_RO']."' order by FSDORDEC.TGL_PERMINTAAN DESC";
+		
+															$qobjParseShowEQ = oci_parse ($objConnectShowEQ, $qShowEQ);  
+												  			       oci_execute ($qobjParseShowEQ,OCI_DEFAULT); 															
+													}elseif(($rCekStatusTiketX->ticketstatus_id=='0')||($rCekStatusTiketX->ticketstatus_id=='5'))
+													{    #echo "<br>SOLVED";												
+															$qShowEQ = "select DISTINCT FSDORDEC.KODE_CABANG, MSTCBGDT.NAMA_CABANG, FSDORDEC.NO_PERMINTAAN, FSDPOEQC.NO_PO,
+																		FSDORDEC.NOMOR_RO,FSDORDEC.TGL_PERMINTAAN, FSDORDEC.KODE_BARANG, 
+																		FSDBRGEQ.NAMA_BARANG, FSDORDEC.JUMLAH_PERMINTAAN, FSDORDEC.KIRIM_DARI_STOK,
+																		FSDPREQC.NO_DELIVERY_ORDER, FSDPREQC.QTY, FSDPREQC.HARGA_BELI, FSDPREQC.MATA_UANG, FSDPREQC.TOTAL_BELI, FSDPREQC.TGL_RECEIVE, FSDPREQC.TGL_DO,
+																		FSDKRMEQ.TGL_TRANSAKSI, FSDKRMEQ.QTY_KIRIM, FSDKRMEQ.JUMLAH_DITERIMA, 
+																		FSDKRMEQ.NAMA_PENGIRIM, FSDKRMEQ.TANGGAL_KIRIM, FSDKRMEQ.NAMA_PENERIMA, FSDKRMEQ.TANGGAL_DITERIMA,
+																		FSDKRMEQ.QTY_KIRIM_BARU, FSDKRMEQ.QTY_KIRIM_BAIK, FSDKRMEQ.HARGA_BARU, FSDKRMEQ.HARGA_BAIK,
+																		FSDORDEC.STATUS_PERMINTAAN, FSDROEQC.STATUS, FSDKRMEQ.STATUS_KIRIM
+																		from FSDORDEC
+																		JOIN MSTCBGDT ON FSDORDEC.KODE_CABANG = MSTCBGDT.CABANG_HEADER
+																		JOIN FSDBRGEQ ON FSDORDEC.KODE_BARANG = FSDBRGEQ.KODE_BARANG
+																		JOIN FSDROEQC ON FSDORDEC.NOMOR_RO = FSDROEQC.NOMOR_RO
+																		JOIN FSDPOEQC ON FSDORDEC.NOMOR_RO = FSDPOEQC.NO_RO
+																		JOIN FSDPREQC ON FSDPOEQC.NO_PO = FSDPREQC.NO_PO
+																		JOIN FSDKRMEQ ON FSDORDEC.NOMOR_RO = FSDKRMEQ.NO_RO
+																		WHERE FSDORDEC.NOMOR_RO = '".$rvCNmrROEQ['NOMOR_RO']."'";
+															$qobjParseShowEQ = oci_parse ($objConnectShowEQ, $qShowEQ);  
+												  			       oci_execute ($qobjParseShowEQ,OCI_DEFAULT); 															
+													}
+												}
+											}
+										
+															
+															while($rvSCatShowEQ = oci_fetch_array($qobjParseShowEQ,OCI_BOTH))  
+															{  
+															?>  												
+															<tr>												
+																<td width="7%">
+																	<center><?=$rvSCatShowEQ["NO_PERMINTAAN"];?></center>
+																</td>
+																<td width="17%">
+																	<center><?=$rvSCatShowEQ["TGL_PERMINTAAN"];?></center>
+																</td>
+																
+																<td width="20%">
+																<center><?=$rvSCatShowEQ["KODE_BARANG"];?></center>
+																</td>														
+																<td width="20%">
+																<center><?=$rvSCatShowEQ["NAMA_BARANG"];?></center>
+																</td>														
+																<td width="15%">
+																	<center><?=$rvSCatShowEQ["JUMLAH_PERMINTAAN"].' <b>UNIT</b>';?>
+																	<? if($rvSCatShowEQ["NOMOR_RO"]!=''){ ?>
+																		<br><?="<b>No.RO : ".$rvSCatShowEQ["NOMOR_RO"].'</b>';?>
+																	<? }elseif($rvSCatShowEQ["NOMOR_RO"]==''){ ?>
+																		<br><?="<b>No.RO : Belum Ada Nomor RO</b>";?>
+																	<? } ?>																	
+																	<? if($rvSCatShowEQ["NO_PO"]!=''){ ?>
+																		<br><?="<b>No.PO : ".$rvSCatShowEQ["NO_PO"].'</b>';?>
+																	<? }elseif($rvSCatShowEQ["NO_PO"]==''){ ?>
+																		<br><?="<b>No.PO : - </b>";?>
+																	<? } ?>
+																	</center>
+																</td>
+																<!--<td width="15%">
+																<center><!?if($rvSCatShowEQ["STATUS_PERMINTAAN"]=='S'){ echo "Barang Kirim Ke Store";
+																}elseif($rvSCatShowEQ["STATUS_PERMINTAAN"]=='F'){ echo "Barang Masih ada diFSD";																	
+																}elseif($rvSCatShowEQ["STATUS_PERMINTAAN"]=='X'){ echo "Barang Dalam Proses Procurement";																	
+																}elseif($rvSCatShowEQ["STATUS_PERMINTAAN"]=='R'){ echo "Barang Sedang Dalam Proses FSD";
+																}elseif($rvSCatShowEQ["STATUS_PERMINTAAN"]=='B'){ echo "Barang Belum Diterima Oleh Store";
+																}elseif($rvSCatShowEQ["STATUS_PERMINTAAN"]=='O'){ echo "Barang Sudah Diterima Oleh Store";
+																}elseif($rvSCatShowEQ["STATUS_PERMINTAAN"]==' '){ echo "Menunggu Persetujuan untuk tiket ".$_GET['pid'];
+																}else{
+																	echo "Menunggu Persetujuan dari Atasan FSD.";
+																};?></center>																	
+																</td>-->
+																	<td width="15%">
+																<center>
+																<? #echo "NOMOR RO :".$rvSCatShowSW["NOMOR_RO"];
+															#if($rvSCatShowSW["NOMOR_RO"]=='')
+															#{	
+																#echo "<br>TIDAK ADA NOMOR RO";
+															#echo "<br>TEST NOMOR RO : ".$rvSCatShowSW["NOMOR_RO"];
+															#	if($rvSCatShowSW["STATUS_PERMINTAAN"]=='R'){ echo "Barang Sedang Diproses FSD untuk Tutup Hari";														
+															#	}elseif($rvSCatShowSW["STATUS_PERMINTAAN"]=='D'){ echo "Barang Sudah Disetujui Oleh FSD MGR/SUB MGR";																
+															#	}elseif($rvSCatShowSW["STATUS_PERMINTAAN"]==' '){ echo "Menunggu Persetujuan untuk tiket ".$_GET['pid'];
+															#	}	
+															#}
+															#elseif($rvSCatShowSW["NOMOR_RO"]!='')
+															#{		
+															$con = mysql_connect("localhost","usrservicedesk","kfc14022");		
+															$qCekStatusTiketX = mysql_query("SELECT ticketstatus_id FROM ITH_TICKET_HEADER
+																										WHERE ticket_id = '".$_GET['pid']."'");	
+															$rCekStatusTiketX = mysql_fetch_object($qCekStatusTiketX);
+															if($rCekStatusTiketX->ticketstatus_id=='1')
+															{	/*echo "MENUNGGU DI ASSIGNMENT OLEH ADMIN X";*/echo "MENUNGGU PERSETUJUAN DARI AREA MANAGER";																	
+															}elseif($rCekStatusTiketX->ticketstatus_id=='2')
+															{	### echo "ON PROCESS<br>";		
+															
+																$qStatusKirimKeStore = "select STATUS_KIRIM from FSDKRMEQ where NO_RO = '".$rvSCatShowEQ['NOMOR_RO']."'";
+																$qobjParseStatusKirimKeStore = oci_parse ($objConnectShowEQ, $qStatusKirimKeStore);  
+																						  oci_execute ($qobjParseStatusKirimKeStore,OCI_DEFAULT);
+																$rvStatusKirimKeStore = oci_fetch_array($qobjParseStatusKirimKeStore,OCI_BOTH);	
+																			
+																if(($rvStatusKirimKeStore['STATUS_KIRIM']=='K'))
+																{		
+																	 echo "Barang Dalam Proses Kirim Ke Store";	
+																}elseif(($rvStatusKirimKeStore['STATUS_KIRIM']=='D'))
+																{		
+																	 echo "Barang Sudah Tiba Di Store";
+																}else	
+																			
+																if($rvSCatShowEQ["KIRIM_DARI_STOK"]=='0')
+																{
+
+																			#echo "<br>";																				
+																	#echo "<br>ADA NOMOR RO<br>";
+																	$objConnectShowEQ = oci_connect('fsd', 'fsd', 'localhost:1521/XE');
+																	if(($rvSCatShowEQ["STATUS_PERMINTAAN"]==' ')&&($rvSCatShowEQ["STATUS_KIRIM"]==''))
+																	{
+																		if($rvSCatShowEQ["STATUS_PERMINTAAN"]==' '){ echo "Menunggu Persetujuan untuk tiket ".$_GET['pid'];												
+																		}elseif($rvSCatShowEQ["STATUS_PERMINTAAN"]=='D'){ echo "Barang Sudah Disetujui Oleh FSD MGR/SUB MGR";																
+																		}elseif($rvSCatShowEQ["STATUS_PERMINTAAN"]=='R'){ echo "Barang Sedang Diproses FSD untuk Tutup Hari";}	
+																	}elseif(($rvSCatShowEQ["STATUS_PERMINTAAN"]=='D')&&($rvSCatShowEQ["STATUS_KIRIM"]==''))
+																	{
+																		if($rvSCatShowEQ["STATUS_PERMINTAAN"]==' '){ echo "Menunggu Persetujuan untuk tiket ".$_GET['pid'];												
+																		}elseif($rvSCatShowEQ["STATUS_PERMINTAAN"]=='D'){ echo "Barang Sudah Disetujui Oleh FSD MGR/SUB MGR";																
+																		}elseif($rvSCatShowEQ["STATUS_PERMINTAAN"]=='R'){ echo "Barang Sedang Diproses FSD untuk Tutup Hari";}	
+																	}elseif(($rvSCatShowEQ["STATUS_PERMINTAAN"]=='R')&&($rvSCatShowEQ["STATUS"]==' ')&&($rvSCatShowEQ["STATUS_KIRIM"]==''))
+																	{
+																		if($rvSCatShowEQ["STATUS"]==' '){ echo "Barang Sedang Diproses FSD untuk Tutup Hari";												
+																		}elseif($rvSCatShowEQ["STATUS"]=='O'){ echo "Barang Sedang Proses Order";																
+																		}elseif($rvSCatShowEQ["STATUS"]=='P'){ echo "Barang Sudah Proses DO Balik"; }
+																	}elseif(($rvSCatShowEQ["STATUS_PERMINTAAN"]=='R')&&
+																			(($rvSCatShowEQ["STATUS"]=='O')||($rvSCatShowEQ["STATUS"]=='P')||($rvSCatShowEQ["STATUS"]=='C'))
+																			)
+																	{	
+																				
+																			if($rvSCatShowEQ["STATUS"]==' '){ echo "Barang Sedang Diproses FSD untuk Tutup Hari";												
+																			}elseif($rvSCatShowEQ["STATUS"]=='O') /* echo "X3<br>Barang Sedang Proses Pesan(Order) dari Gudang";*/ 
+																			{	#echo "Barang Sedang Proses Pesan(Order) Ke Procurement A";
+																				#echo "Barang Sedang Diproses oleh FSD untuk Receive PO";
+																				echo "Barang Masih Diproses Oleh FSD untuk lebih lanjut";
+																				$qShowStsBrgFrmProc = "select STATUS_BARANG from PROCPOEQC where NOMOR_RO = '".$rvSCatShowEQ["NOMOR_RO"]."'";
+																				$qobjParseShowStsBrgFrmProc = oci_parse ($objConnectShowEQ, $qShowStsBrgFrmProc);  
+																					   oci_execute ($qobjParseShowStsBrgFrmProc,OCI_DEFAULT); 	
+																				$rvSCatShowStsBrgFrmProc = oci_fetch_array($qobjParseShowStsBrgFrmProc,OCI_BOTH);  																			
+																				if($rvSCatShowStsBrgFrmProc['STATUS_BARANG']=='Barang Dalam Pemesanan')
+																				{
+																					echo "<br>Dan Saat ini Barang masih dalam Pemesanan";
+																				}elseif($rvSCatShowStsBrgFrmProc['STATUS_BARANG']=='Barang Dikirim Ke FSD')
+																				{
+																					echo "<br>Dan Saat ini Barang dalam Proses Dikirim Ke FSD";	
+																				}
+																			}elseif($rvSCatShowEQ["STATUS"]=='P'){ echo "Barang Sudah Diterima Oleh Store (Proses DO Balik)";
+																			}elseif($rvSCatShowEQ["STATUS"]=='C'){ echo "Barang Dibatalkan Pemesanannya";}
+																			echo "<br>";
+																										
+
+																			#echo "<br>STATUS_KIRIM : ".$rvStatusKirimKeStore['STATUS_KIRIM'];
+																		#	if(($rvStatusKirimKeStore['STATUS_KIRIM']=='K')||($rvStatusKirimKeStore['STATUS_KIRIM']=='D'))
+																		##	if(($rvStatusKirimKeStore['STATUS_KIRIM']=='K'))
+																		##	{		
+																		##		if($rvStatusKirimKeStore["STATUS_KIRIM"]=='K'){ echo "Dan Barang Dalam Proses Kirim Ke Store A";														
+																				#}elseif($rvStatusKirimKeStore["STATUS_KIRIM"]=='D'){ echo "Dan Barang Sudah Diterima Oleh Store";																
+																		##		}	
+																		##	}	echo "<br>";
+																			
+																	}
+																							
+																}	
+																elseif($rvSCatShowEQ["KIRIM_DARI_STOK"]!='0')
+																{
+																	##echo "<br>ADA NOMOR RO<br>";
+																	 
+								
+																		$objConnectShowEQ = oci_connect('fsd', 'fsd', 'localhost:1521/XE'); 
+																		if(($rvSCatShowEQ["STATUS_PERMINTAAN"]==' '))
+																		{
+																			if($rvSCatShowEQ["STATUS_PERMINTAAN"]==' '){ echo "Menunggu Persetujuan untuk tiket ".$_GET['pid'];												
+																			}elseif($rvSCatShowEQ["STATUS_PERMINTAAN"]=='D'){ echo "Barang Sudah Disetujui Oleh FSD MGR/SUB MGR";																
+																			}elseif($rvSCatShowEQ["STATUS_PERMINTAAN"]=='R'){ echo "Barang Sedang Diproses FSD untuk Tutup Hari";}	
+																		
+																		}elseif(($rvSCatShowEQ["STATUS_PERMINTAAN"]=='D'))
+																		{   #echo "<br>STATUS_PERMINTAAN DISETUJUI<br>";
+																			if($rvSCatShowEQ["STATUS_PERMINTAAN"]==' '){ echo "Menunggu Persetujuan untuk tiket ".$_GET['pid'];												
+																			}elseif($rvSCatShowEQ["STATUS_PERMINTAAN"]=='D'){ echo "Barang Sudah Disetujui Oleh FSD MGR/SUB MGR";																
+																			}elseif($rvSCatShowEQ["STATUS_PERMINTAAN"]=='R'){ echo "Barang Sedang Diproses FSD untuk Tutup Hari";}	
+																		
+																		}elseif(($rvSCatShowEQ["STATUS_PERMINTAAN"]=='R')&&($rvSCatShowEQ["STATUS"]==' '))
+																		{
+																			if($rvSCatShowEQ["STATUS"]==' '){ echo "Barang Sedang Diproses FSD untuk Tutup Hari";												
+																			}elseif($rvSCatShowEQ["STATUS"]=='O'){ echo "X2<br>Barang Sedang Proses Pesan(Order) dari Gudang";																
+																			}elseif($rvSCatShowEQ["STATUS"]=='P'){ echo "Barang Sudah Proses DO Balik";}
+																		
+																		##}elseif(($rvSCatShowSW["STATUS_PERMINTAAN"]=='R')&&
+																		##		(($rvSCatShowSW["STATUS"]=='O')||($rvSCatShowSW["STATUS"]=='P')||($rvSCatShowSW["STATUS"]=='C'))&&
+																		##		($rvSCatShowSW["STATUS_KIRIM"]==''))
+																		##{
+																			/**
+																			if($rvSCatShowSW["STATUS"]==' '){ echo "Barang Sedang Diproses FSD untuk Tutup Hari";												
+																			}elseif($rvSCatShowSW["STATUS"]=='O'){ echo "X3<br>Barang Sedang Proses Pesan(Order) dari Gudang";																
+																			}elseif($rvSCatShowSW["STATUS"]=='P'){ echo "Barang Sudah Proses DO Balik";
+																			}elseif($rvSCatShowSW["STATUS"]=='C'){ echo "Barang Dibatalkan Pemesanannya";}
+																			**/
+																		#}elseif(($rvSCatShowSW["STATUS_KIRIM"]!='')){
+																		}elseif(($rvSCatShowEQ["STATUS_PERMINTAAN"]=='R')&&
+																				(($rvSCatShowEQ["STATUS"]=='O')||($rvSCatShowEQ["STATUS"]=='P')||($rvSCatShowEQ["STATUS"]=='C'))
+																				)
+																		{	
+																			if($rvSCatShowEQ["STATUS"]==' '){ echo "Barang Sedang Diproses FSD untuk Tutup Hari";												
+																			}elseif($rvSCatShowEQ["STATUS"]=='O'){ echo "X3<br>Barang Sedang Proses Pesan(Order) dari Gudang";																
+																			}elseif($rvSCatShowEQ["STATUS"]=='P'){ echo "Barang Sudah Diterima Oleh Store (Proses DO Balik)";
+																			}elseif($rvSCatShowEQ["STATUS"]=='C'){ echo "Barang Dibatalkan Pemesanannya";}
+																			echo "<br>";
+																			#echo "<br>NOMOR RO : <b>".$rvSCatShowSW["NOMOR_RO"].'</b>';
+																			#echo "<br>select STATUS_KIRIM from FSDKRMSW where NO_RO = '".$rvSCatShowSW['NOMOR_RO']."'";
+																			##$objConnectShowSW = oci_connect('fsd', 'fsd', 'localhost:1521/XE'); 
+																			#$qStatusKirimKeStore = "select STATUS_KIRIM from FSDKRMSW where NO_RO = 'RO030318001'";
+																			
+																			$qStatusKirimKeStore = "select STATUS_KIRIM from FSDKRMEQ where NO_RO = '".$rvSCatShowEQ['NOMOR_RO']."'";
+																			$qobjParseStatusKirimKeStore = oci_parse ($objConnectShowEQ, $qStatusKirimKeStore);  
+																						  oci_execute ($qobjParseStatusKirimKeStore,OCI_DEFAULT);
+																			$rvStatusKirimKeStore = oci_fetch_array($qobjParseStatusKirimKeStore,OCI_BOTH);	
+																			#echo "<br>STATUS_KIRIM : ".$rvStatusKirimKeStore['STATUS_KIRIM'];
+																		#	if(($rvStatusKirimKeStore['STATUS_KIRIM']=='K')||($rvStatusKirimKeStore['STATUS_KIRIM']=='D'))
+																			if(($rvStatusKirimKeStore['STATUS_KIRIM']=='K'))
+																			{		
+																				if($rvStatusKirimKeStore["STATUS_KIRIM"]=='K'){ echo "Dan Barang Dalam Proses Kirim Ke Store B";														
+																				#}elseif($rvStatusKirimKeStore["STATUS_KIRIM"]=='D'){ echo "Dan Barang Sudah Diterima Oleh Store";																
+																				}	
+																			}	echo "<br>";
+																			
+																		}	
+																	
+
+																}	
+															#}	
+															#}elseif(($rCekStatusTiketX->ticketstatus_id=='0')||($rCekStatusTiketX->ticketstatus_id=='5'))
+															}elseif($rCekStatusTiketX->ticketstatus_id=='0')
+															{
+																##echo "<br>SOLVED ZZZ<br>";
+																#if($rvSCatShowEQ["STATUS_KIRIM"]=='K'){ echo "BBB1....<br>Barang Proses Dikirim Ke Store";														
+																#}elseif($rvSCatShowEQ["STATUS_KIRIM"]=='D'){ echo "Barang Sudah Diterima Oleh Store";																
+																#}																	
+																if($rvSCatShowEQ["KIRIM_DARI_STOK"]=='0') /* ORDER KE PROCUREMENT */
+																{
+																	##echo "<br>STOK TIDAK TERSEDIA DI GUDANG<br>";
+																	##echo "<br>STATUS KIRIM : ".$rvSCatShowEQ["STATUS_KIRIM"];
+																	
+																/*	if(($rvSCatShowEQ["STATUS_PERMINTAAN"]=='R')&&
+																			(($rvSCatShowEQ["STATUS"]=='O')||($rvSCatShowEQ["STATUS"]=='P')||($rvSCatShowEQ["STATUS"]=='C'))&&
+																			($rvSCatShowEQ["STATUS_KIRIM"]=='D'))
+																	{
+																		if($rvSCatShowEQ["STATUS_KIRIM"]=='K'){ echo "Barang Proses Dikirim Ke Store";														
+																		}elseif($rvSCatShowEQ["STATUS_KIRIM"]=='D'){ echo "Barang Sudah Diterima Oleh Store";																
+																		}	
+																	#}elseif(($rvSCatShowEQ["STATUS_KIRIM"]!='')){
+																	}elseif(($rvSCatShowEQ["STATUS_PERMINTAAN"]=='R')&&
+																			(($rvSCatShowEQ["STATUS"]=='O')||($rvSCatShowEQ["STATUS"]=='P')||($rvSCatShowEQ["STATUS"]=='C'))&&
+																			($rvSCatShowEQ["STATUS_KIRIM"]=='K'))
+																	{
+																		if($rvSCatShowEQ["STATUS_KIRIM"]=='K'){ echo "Barang Proses Dikirim Ke Store";														
+																		}elseif($rvSCatShowEQ["STATUS_KIRIM"]=='D'){ echo "Barang Sudah Diterima Oleh Store";																
+																		}	
+																	}	
+																*/	
+																	#	if($rvSCatShowEQ["STATUS_KIRIM"]=='K'){ echo "ZZ1....<br>Barang Proses Dikirim Ke Store";														
+																		if($rvSCatShowEQ["STATUS_KIRIM"]=='K'){ echo "Barang Proses Dikirim Ke Store";														
+																		}elseif($rvSCatShowEQ["STATUS_KIRIM"]=='D'){ echo "Barang Sudah Diterima Oleh Store";																
+																		}																	
+																}	
+																elseif($rvSCatShowEQ["KIRIM_DARI_STOK"]!='0') /* ORDER KE GUDANG */
+																{
+																	#echo "<br>ADA NOMOR RO<br>";
+																	 ##echo "<br>STOK TERSEDIA DI GUDANG<br>";
+								
+																		$objConnectShowEQ = oci_connect('fsd', 'fsd', 'localhost:1521/XE'); 
+																	if(($rvSCatShowEQ["STATUS_PERMINTAAN"]=='R')&&
+																			(($rvSCatShowEQ["STATUS"]=='O')||($rvSCatShowEQ["STATUS"]=='P')||($rvSCatShowEQ["STATUS"]=='C'))&&
+																			($rvSCatShowEQ["STATUS_KIRIM"]=='D'))
+																	{
+																		if($rvSCatShowEQ["STATUS_KIRIM"]=='K'){ echo "ZZ5....<br>Barang Proses Dikirim Ke Store";														
+																		}elseif($rvSCatShowEQ["STATUS_KIRIM"]=='D'){ echo "Barang Sudah Diterima Oleh Store";																
+																		}	
+																	#}elseif(($rvSCatShowEQ["STATUS_KIRIM"]!='')){
+																	}elseif(($rvSCatShowEQ["STATUS_PERMINTAAN"]=='R')&&
+																			(($rvSCatShowEQ["STATUS"]=='O')||($rvSCatShowEQ["STATUS"]=='P')||($rvSCatShowEQ["STATUS"]=='C'))&&
+																			($rvSCatShowEQ["STATUS_KIRIM"]=='K'))
+																	{
+																		if($rvSCatShowEQ["STATUS_KIRIM"]=='K'){ echo "ZZ4....<br>Barang Proses Dikirim Ke Store";														
+																		}elseif($rvSCatShowEQ["STATUS_KIRIM"]=='D'){ echo "Barang Sudah Diterima Oleh Store";																
+																		}	
+																	}	
+																}															
+															}elseif($rCekStatusTiketX->ticketstatus_id=='5')
+															{
+																##echo "CLOSED<br>";
+																if($rvSCatShowEQ["KIRIM_DARI_STOK"]=='0') /* ORDER KE PROCUREMENT */
+																{
+																	#echo "<br>STOK TIDAK TERSEDIA DI GUDANG<br>";
+																	#echo "<br>ADA NOMOR RO<br>";
+																/**	if(($rvSCatShowEQ["STATUS_PERMINTAAN"]=='R')&&
+																			(($rvSCatShowEQ["STATUS"]=='O')||($rvSCatShowEQ["STATUS"]=='P')||($rvSCatShowEQ["STATUS"]=='C'))&&
+																			($rvSCatShowEQ["STATUS_KIRIM"]=='D'))
+																	{
+																		if($rvSCatShowEQ["STATUS_KIRIM"]=='K'){ echo "ZZ3....<br>Barang Proses Dikirim Ke Store";														
+																		}elseif($rvSCatShowEQ["STATUS_KIRIM"]=='D'){ echo "Barang Sudah Diterima Oleh Store";																
+																		}	
+																**/
+																	#}elseif(($rvSCatShowEQ["STATUS_KIRIM"]!='')){
+																/**	}elseif(($rvSCatShowEQ["STATUS_PERMINTAAN"]=='R')&&
+																			(($rvSCatShowEQ["STATUS"]=='O')||($rvSCatShowEQ["STATUS"]=='P')||($rvSCatShowEQ["STATUS"]=='C'))&&
+																			($rvSCatShowEQ["STATUS_KIRIM"]=='K'))
+																	{
+																		if($rvSCatShowEQ["STATUS_KIRIM"]=='K'){ echo "ZZ2....<br>Barang Proses Dikirim Ke Store";														
+																		}elseif($rvSCatShowEQ["STATUS_KIRIM"]=='D'){ echo "Barang Sudah Diterima Oleh Store";																
+																		}	
+																	}	
+																**/
+																	echo "Barang Sudah Diterima Oleh Store<br>(Proses DO Balik)";																
+																}	
+																elseif($rvSCatShowEQ["KIRIM_DARI_STOK"]!='0') /* ORDER KE GUDANG */
+																{
+																	#echo "<br>ADA NOMOR RO<br>";
+																	 ##echo "<br>STOK TERSEDIA DI GUDANG<br>";
+								
+																		$objConnectShowEQ = oci_connect('fsd', 'fsd', 'localhost:1521/XE'); 
+																	if(($rvSCatShowEQ["STATUS_PERMINTAAN"]=='R')&&
+																			(($rvSCatShowEQ["STATUS"]=='O')||($rvSCatShowEQ["STATUS"]=='P')||($rvSCatShowEQ["STATUS"]=='C'))&&
+																			($rvSCatShowEQ["STATUS_KIRIM"]==''))
+																	{
+																		if($rvSCatShowEQ["STATUS"]==' '){ echo "Barang Sedang Diproses FSD untuk Tutup Hari";												
+																		}elseif($rvSCatShowEQ["STATUS"]=='O'){ /*echo "X1...Z<br>Barang Sedang Proses Order Ke Procurement";*/	echo "Barang Sedang Proses Order Ke Procurement";																
+																		#}elseif($rvSCatShowEQ["STATUS"]=='O'){ echo "Barang Sedang Proses Order Ke Procurement";																
+																		}elseif($rvSCatShowEQ["STATUS"]=='P'){ echo "Barang Sudah Proses DO Balik";
+																		}elseif($rvSCatShowEQ["STATUS"]=='C'){ echo "Barang Dibatalkan Pemesanannya";}
+																	#}elseif(($rvSCatShowEQ["STATUS_KIRIM"]!='')){
+																	}elseif(($rvSCatShowEQ["STATUS_PERMINTAAN"]=='R')&&
+																			(($rvSCatShowEQ["STATUS"]=='O')||($rvSCatShowEQ["STATUS"]=='P')||($rvSCatShowEQ["STATUS"]=='C'))&&
+																			($rvSCatShowEQ["STATUS_KIRIM"]!=''))
+																	{
+																		if($rvSCatShowEQ["STATUS_KIRIM"]=='K'){ /* echo "ZZ1....<br>Barang Proses Dikirim Ke Store";*/ echo "Barang Proses Dikirim Ke Store";														
+																		}elseif($rvSCatShowEQ["STATUS_KIRIM"]=='D'){ echo "Barang Sudah Diterima Oleh Store";																
+																		}	
+																	}	
+																}																
+															} 															
+																?>
+																</center>
+																</td>														
+															</tr>
+														<? } ?>	
+									<? }elseif($rcektipebrgs->kode_tipebrg=='RQS-03-000113')
+									{ 
+
+													$qCekStatusTiketStore = mysql_query("SELECT ticket_id, ticketstatus_id, ticketapprovalstatus_id, ticketapprovalstatus_id2, ticketapprovalstatus_id3 
+																						FROM ITH_TICKET_HEADER WHERE ticket_id = '".$_GET['pid']."'");
+													$rCekStatusTiketStore = mysql_fetch_object($qCekStatusTiketStore);
+											
+													if(($rCekStatusTiketStore->ticketapprovalstatus_id!='1')&&($rCekStatusTiketStore->ticketapprovalstatus_id2!='1')&&($rCekStatusTiketStore->ticketapprovalstatus_id3!='1'))
+													{												
+
+															$qvCekDataSW = mysql_query("SELECT DISTINCT ticket_id, no_permintaan, request_by, kode_tipebarang, kode_tipebarang_sw, kode_tipebarang_sp,
+															kuantitas, nama_tipebarang, nama_tipebarang_sw, nama_tipebarang_sp
+															FROM ITH_TIPEBARANG_KODE
+															WHERE ticket_id = '$_GET[pid]'");
+															$rvCekDataSW = mysql_fetch_object($qvCekDataSW);													
+													
+															$objConnectShowSW = oci_connect('fsd', 'fsd', 'localhost:1521/XE'); 
+															$qShowSW = "select FSDORDSC_TEMP.NO_PERMINTAAN, FSDORDSC_TEMP.TGL_PERMINTAAN, FSDORDSC_TEMP.TGL_BUAT_FSD, 
+																	FSDORDSC_TEMP.KODE_BARANG, 
+																	FSDBRGSP.NAMA_BARANG,
+																	FSDORDSC_TEMP.JUMLAH_PERMINTAAN, FSDORDSC_TEMP.JUMLAH_ORDER, FSDORDSC_TEMP.KIRIM_DARI_STOK, FSDORDSC_TEMP.TGL_DISETUJUI, 
+																	FSDORDSC_TEMP.NOMOR_RO, FSDORDSC_TEMP.STATUS_PERMINTAAN
+																	from FSDORDSC_TEMP 
+																	JOIN FSDBRGSP ON FSDORDSC_TEMP.KODE_BARANG = FSDBRGSP.KODE_BARANG
+																	where NO_PERMINTAAN = '".$rvCekDataSW->no_permintaan."'
+																	AND JUMLAH_PERMINTAAN IS NOT NULL order by FSDORDSC_TEMP.TGL_PERMINTAAN DESC";  
+															$qobjParseShowSW = oci_parse ($objConnectShowSW, $qShowSW);  
+																	oci_execute ($qobjParseShowSW,OCI_DEFAULT);  													
+ 
+													#echo "Test 1";
+													}elseif
+													((($rCekStatusTiketStore->ticketapprovalstatus_id=='1')&&($rCekStatusTiketStore->ticketapprovalstatus_id2=='1')&&($rCekStatusTiketStore->ticketapprovalstatus_id3=='1'))||
+													(($rCekStatusTiketStore->ticketapprovalstatus_id=='1')&&($rCekStatusTiketStore->ticketapprovalstatus_id2=='2')&&($rCekStatusTiketStore->ticketapprovalstatus_id3=='2'))||
+													(($rCekStatusTiketStore->ticketapprovalstatus_id=='1')&&($rCekStatusTiketStore->ticketapprovalstatus_id2=='1')&&($rCekStatusTiketStore->ticketapprovalstatus_id3=='2'))||
+													(($rCekStatusTiketStore->ticketapprovalstatus_id=='2')&&($rCekStatusTiketStore->ticketapprovalstatus_id2=='2')&&($rCekStatusTiketStore->ticketapprovalstatus_id3=='1'))||
+													(($rCekStatusTiketStore->ticketapprovalstatus_id=='2')&&($rCekStatusTiketStore->ticketapprovalstatus_id2=='1')&&($rCekStatusTiketStore->ticketapprovalstatus_id3=='1'))||
+													(($rCekStatusTiketStore->ticketapprovalstatus_id=='1')&&($rCekStatusTiketStore->ticketapprovalstatus_id2=='2')&&($rCekStatusTiketStore->ticketapprovalstatus_id3=='1')))
+													{
+
+														#echo "Test 2";
+															$qvCekDataSW = mysql_query("SELECT DISTINCT ticket_id, no_permintaan, request_by, kode_tipebarang, kode_tipebarang_sw, kode_tipebarang_sp,
+															kuantitas, nama_tipebarang, nama_tipebarang_sw, nama_tipebarang_sp
+															FROM ITH_TIPEBARANG_KODE
+															WHERE ticket_id = '$_GET[pid]'");
+															$rvCekDataSW = mysql_fetch_object($qvCekDataSW);													
+														$objConnectShowSW = oci_connect('fsd', 'fsd', 'localhost:1521/XE'); 
+															#$qCekNomorROSW = "SELECT NOMOR_RO FROM FSDORDSC WHERE no_permintaan = '$rvCekDataSW->no_permintaan'";
+															$qCekNomorROSW = "select FSDORDSC.KODE_CABANG, MSTCBGDT.NAMA_CABANG, FSDORDSC.NO_PERMINTAAN,
+															FSDORDSC.NOMOR_RO,FSDORDSC.TGL_PERMINTAAN, FSDORDSC.KODE_BARANG, 
+															FSDBRGSP.NAMA_BARANG, FSDORDSC.JUMLAH_PERMINTAAN, 
+															FSDORDSC.STATUS_PERMINTAAN, FSDROSWC.STATUS, FSDORDSC.KIRIM_DARI_STOK
+															from FSDORDSC
+															JOIN MSTCBGDT ON FSDORDSC.KODE_CABANG = MSTCBGDT.CABANG_HEADER
+															JOIN FSDBRGSP ON FSDORDSC.KODE_BARANG = FSDBRGSP.KODE_BARANG
+															JOIN FSDROSWC ON FSDORDSC.NOMOR_RO = FSDROSWC.NO_RO
+															WHERE FSDORDSC.NO_PERMINTAAN ='".$rvCekDataSW->no_permintaan."'";
+															$qobjParseCekNomorROSW = oci_parse ($objConnectShowSW, $qCekNomorROSW);  
+																				oci_execute ($qobjParseCekNomorROSW,OCI_DEFAULT); 
+															$rvCekNomorROSW = oci_fetch_array($qobjParseCekNomorROSW,OCI_BOTH);
+															#echo '<br>Nomor RO : '.$rvCekNomorROSW['NOMOR_RO'];
+														#if($rvCekNomorROSW['KIRIM_DARI_STOK']=='0')
+														#{	
+															#echo "KIRIM_DARI_STOK(Ke Procurement) : ".$rvCekNomorROSW['KIRIM_DARI_STOK'];
+														#}elseif($rvCekNomorROSW['KIRIM_DARI_STOK']!='0')
+														#{
+															#echo "KIRIM_DARI_STOK(Stok dari Gudang) : ".$rvCekNomorROSW['KIRIM_DARI_STOK'];	
+															if($rvCekNomorROSW['NOMOR_RO']!='')
+															{	
+																##echo "<br>STATUS PERMINTAAN : ".$rvCekNomorROSW['STATUS_PERMINTAAN'].'<br>STATUS : '.$rvCekNomorROSW['STATUS'];
+																##echo "<br>Nomor Permintaan : ".$rvCekDataSW->no_permintaan;
+																$qvCekDataSW = mysql_query("SELECT DISTINCT ticket_id, no_permintaan, request_by, kode_tipebarang, kode_tipebarang_sw, kode_tipebarang_sp,
+																kuantitas, nama_tipebarang, nama_tipebarang_sw, nama_tipebarang_sp
+																FROM ITH_TIPEBARANG_KODE
+																WHERE ticket_id = '$_GET[pid]'");
+																$rvCekDataSW = mysql_fetch_object($qvCekDataSW);															
+																$qCekNomorROSW2 = "select DISTINCT FSDORDSC.KODE_CABANG, MSTCBGDT.NAMA_CABANG, FSDORDSC.NO_PERMINTAAN,
+																FSDORDSC.NOMOR_RO,FSDORDSC.TGL_PERMINTAAN, FSDORDSC.KODE_BARANG, 
+																FSDBRGSP.NAMA_BARANG, FSDORDSC.JUMLAH_PERMINTAAN, 
+																FSDORDSC.STATUS_PERMINTAAN, FSDROSWC.STATUS
+																from FSDORDSC
+																JOIN MSTCBGDT ON FSDORDSC.KODE_CABANG = MSTCBGDT.CABANG_HEADER
+																JOIN FSDBRGSP ON FSDORDSC.KODE_BARANG = FSDBRGSP.KODE_BARANG
+																JOIN FSDROSWC ON FSDORDSC.NOMOR_RO = FSDROSWC.NO_RO
+																WHERE FSDORDSC.NO_PERMINTAAN ='".$rvCekDataSW->no_permintaan."'";
+																$qobjParseCekNomorROSW2 = oci_parse ($objConnectShowSW, $qCekNomorROSW2);  
+																					      oci_execute ($qobjParseCekNomorROSW2,OCI_DEFAULT); 
+																$rvCekNomorROSW2 = oci_fetch_array($qobjParseCekNomorROSW2,OCI_BOTH);		
+																##echo "<br>STATUS_PERMINTAAN : ".$rvCekNomorROSW2['STATUS_PERMINTAAN'];
+																##echo "<br>STATUS RO : ".$rvCekNomorROSW2['STATUS'];	
+																if(($rvCekNomorROSW2['STATUS_PERMINTAAN']=='R')&&($rvCekNomorROSW2['STATUS']==' '))	
+																{
+																	echo "<br>TEST R dan Blank";
+																	$qvCekDataSW = mysql_query("SELECT DISTINCT ticket_id, no_permintaan, request_by, kode_tipebarang, kode_tipebarang_sw, kode_tipebarang_sp,
+																	kuantitas, nama_tipebarang, nama_tipebarang_sw, nama_tipebarang_sp
+																	FROM ITH_TIPEBARANG_KODE
+																	WHERE ticket_id = '$_GET[pid]'");
+																	$rvCekDataSW = mysql_fetch_object($qvCekDataSW);																		
+																	$qShowSW = "select DISTINCT FSDORDSC_TEMP.NO_PERMINTAAN, FSDORDSC_TEMP.TGL_PERMINTAAN, FSDORDSC_TEMP.TGL_BUAT_FSD, 
+																	FSDORDSC_TEMP.KODE_BARANG, 
+																	FSDBRGSP.NAMA_BARANG,
+																	FSDORDSC_TEMP.JUMLAH_PERMINTAAN, FSDORDSC_TEMP.JUMLAH_ORDER, FSDORDSC_TEMP.KIRIM_DARI_STOK, FSDORDSC_TEMP.TGL_DISETUJUI, 
+																	FSDORDSC_TEMP.NOMOR_RO, FSDORDSC_TEMP.STATUS_PERMINTAAN
+																	from FSDORDSC_TEMP 
+																	JOIN FSDBRGSP ON FSDORDSC_TEMP.KODE_BARANG = FSDBRGSP.KODE_BARANG
+																	where FSDORDSC_TEMP.NO_PERMINTAAN = '".$rvCekDataSW->no_permintaan."'
+																	AND FSDORDSC_TEMP.JUMLAH_PERMINTAAN IS NOT NULL order by FSDORDSC_TEMP.TGL_PERMINTAAN DESC";
+																	$qobjParseShowSW = oci_parse ($objConnectShowSW, $qShowSW);  
+																	                   oci_execute ($qobjParseShowSW,OCI_DEFAULT);
+																	#echo "TEST R DAN BLANK";
+																}elseif(($rvCekNomorROSW2['STATUS_PERMINTAAN']=='R')&&($rvCekNomorROSW2['STATUS']=='O'))
+																{
+																	echo "TEST1";	
+																	$qvCekDataSW = mysql_query("SELECT DISTINCT ticket_id, no_permintaan, request_by, kode_tipebarang, kode_tipebarang_sw, kode_tipebarang_sp,
+																	kuantitas, nama_tipebarang, nama_tipebarang_sw, nama_tipebarang_sp
+																	FROM ITH_TIPEBARANG_KODE
+																	WHERE ticket_id = '$_GET[pid]'");
+																	$rvCekDataSW = mysql_fetch_object($qvCekDataSW);																	
+																	##echo "<br>TEST STATUS PERMINTAAN : R DAN Status RO : O";
+																	$qShowSW = "select DISTINCT FSDORDSC.KODE_CABANG, MSTCBGDT.NAMA_CABANG, FSDORDSC.NO_PERMINTAAN,
+																	FSDORDSC.NOMOR_RO,FSDORDSC.TGL_PERMINTAAN, FSDORDSC.KODE_BARANG, 
+																	FSDBRGSP.NAMA_BARANG, FSDORDSC.JUMLAH_PERMINTAAN, 
+																	FSDORDSC.STATUS_PERMINTAAN, FSDROSWC.STATUS
+																	from FSDORDSC
+																	JOIN MSTCBGDT ON FSDORDSC.KODE_CABANG = MSTCBGDT.CABANG_HEADER
+																	JOIN FSDBRGSP ON FSDORDSC.KODE_BARANG = FSDBRGSP.KODE_BARANG
+																	JOIN FSDROSWC ON FSDORDSC.NOMOR_RO = FSDROSWC.NO_RO
+																	WHERE FSDORDSC.NO_PERMINTAAN = '".$rvCekDataSW->no_permintaan."'";														
+																	$qobjParseShowSW = oci_parse ($objConnectShowSW, $qShowSW);  
+																					   oci_execute ($qobjParseShowSW,OCI_DEFAULT); #echo "<br>Test 1";
+																	#echo '<br>Nomor permintaan : '.$rvCekDataSW->no_permintaan;
+																	#echo '<br>Nomor RO : '.$rvCekNomorROSW['NOMOR_RO'];
+																}elseif(($rvCekNomorROSW2['STATUS_PERMINTAAN']=='R')&&($rvCekNomorROSW2['STATUS']=='P'))
+																{
+																	echo "<br>TEST R DAN P";	
+																	$qvCekDataSW = mysql_query("SELECT DISTINCT ticket_id, no_permintaan, request_by, kode_tipebarang, kode_tipebarang_sw, kode_tipebarang_sp,
+																	kuantitas, nama_tipebarang, nama_tipebarang_sw, nama_tipebarang_sp
+																	FROM ITH_TIPEBARANG_KODE
+																	WHERE ticket_id = '".$_GET['pid']."'");
+																	$rvCekDataSW = mysql_fetch_object($qvCekDataSW);															
+																	/*
+																	$qShowSW = "SELECT FSDORDSC.KODE_CABANG, MSTCBGDT.NAMA_CABANG, FSDORDSC.NO_PERMINTAAN, FSDPOSWC.NO_PO,
+																	FSDORDSC.NOMOR_RO,FSDORDSC.TGL_PERMINTAAN, FSDORDSC.KODE_BARANG, 
+																	FSDBRGSP.NAMA_BARANG, FSDORDSC.JUMLAH_PERMINTAAN, 
+																	FSDPRSWC.NO_DO, FSDPRSWC.QTY, FSDPRSWC.HARGA_BELI, FSDPRSWC.MATA_UANG, FSDPRSWC.TOTAL_BELI, FSDPRSWC.TGL_RECEIVE, FSDPRSWC.TGL_DO,
+																	FSDKRMSW.TGL_TRANSAKSI, FSDKRMSW.QTY_KIRIM, FSDKRMSW.JUMLAH_DITERIMA, 
+																	FSDKRMSW.NAMA_PENGIRIM, FSDKRMSW.TANGGAL_KIRIM, FSDKRMSW.NAMA_PENERIMA, FSDKRMSW.TANGGAL_DITERIMA,
+																	FSDKRMSW.QTY_KIRIM_BARU, FSDKRMSW.QTY_KIRIM_BAIK, FSDKRMSW.HARGA_BARU, FSDKRMSW.HARGA_BAIK,
+																	FSDORDSC.STATUS_PERMINTAAN, FSDROSWC.STATUS, FSDKRMSW.STATUS_KIRIM
+																	FROM FSDORDSC
+																	JOIN MSTCBGDT ON FSDORDSC.KODE_CABANG = MSTCBGDT.CABANG_HEADER
+																	JOIN FSDBRGSP ON FSDORDSC.KODE_BARANG = FSDBRGSP.KODE_BARANG
+																	JOIN FSDROSWC ON FSDORDSC.NOMOR_RO = FSDROSWC.NO_RO
+																	JOIN FSDPOSWC ON FSDORDSC.NOMOR_RO = FSDPOSWC.NO_RO
+																	JOIN FSDPRSWC ON FSDPOSWC.NO_PO = FSDPRSWC.NO_PO
+																	JOIN FSDKRMSW ON FSDORDSC.NOMOR_RO = FSDKRMSW.NO_RO
+																	WHERE FSDORDSC.NO_PERMINTAAN = '$rvCekDataSW->no_permintaan'";														
+																	*/
+																	$qShowSW = "select DISTINCT FSDORDSC.KODE_CABANG, MSTCBGDT.NAMA_CABANG, 
+																	FSDORDSC.NO_PERMINTAAN,
+																	FSDORDSC.NOMOR_RO,FSDORDSC.TGL_PERMINTAAN, FSDORDSC.KODE_BARANG, 
+																	FSDBRGSP.NAMA_BARANG, FSDORDSC.JUMLAH_PERMINTAAN, 
+																	FSDORDSC.STATUS_PERMINTAAN, FSDROSWC.STATUS
+																	from FSDORDSC
+																	JOIN MSTCBGDT ON FSDORDSC.KODE_CABANG = MSTCBGDT.CABANG_HEADER
+																	JOIN FSDBRGSP ON FSDORDSC.KODE_BARANG = FSDBRGSP.KODE_BARANG
+																	JOIN FSDROSWC ON FSDORDSC.NOMOR_RO = FSDROSWC.NO_RO
+																	WHERE FSDORDSC.NO_PERMINTAAN = '$rvCekDataSW->no_permintaan'";
+																	$qobjParseShowSW = oci_parse ($objConnectShowSW, $qShowSW);
+																					   oci_execute ($qobjParseShowSW,OCI_DEFAULT);	
+																}
+															#echo "<br>Test 1X";	
+															}elseif($rvCekNomorROSW['NOMOR_RO']=='')
+															{		
+																	$qvCekDataSW = mysql_query("SELECT DISTINCT ticket_id, no_permintaan, request_by, kode_tipebarang, kode_tipebarang_sw, kode_tipebarang_sp,
+																	kuantitas, nama_tipebarang, nama_tipebarang_sw, nama_tipebarang_sp
+																	FROM ITH_TIPEBARANG_KODE
+																	WHERE ticket_id = '$_GET[pid]'");
+																	$rvCekDataSW = mysql_fetch_object($qvCekDataSW);			
+																	##echo "<br>XXX Nomor Permintaan : ".$rvCekDataSW->no_permintaan;	
+																	$objConnectShowSW = oci_connect('fsd', 'fsd', 'localhost:1521/XE'); 
+																	#$qCekNomorROSW = "SELECT NOMOR_RO FROM FSDORDSC WHERE no_permintaan = '$rvCekDataSW->no_permintaan'";
+																	/* $qCekKirimDariStok = "select FSDORDSC.KODE_CABANG, MSTCBGDT.NAMA_CABANG, FSDORDSC.NO_PERMINTAAN,
+																	FSDORDSC.NOMOR_RO,FSDORDSC.TGL_PERMINTAAN, FSDORDSC.KODE_BARANG, 
+																	FSDBRGSP.NAMA_BARANG, FSDORDSC.JUMLAH_PERMINTAAN, 
+																	FSDORDSC.STATUS_PERMINTAAN, FSDROSWC.STATUS, FSDORDSC.KIRIM_DARI_STOK
+																	from FSDORDSC
+																	JOIN MSTCBGDT ON FSDORDSC.KODE_CABANG = MSTCBGDT.CABANG_HEADER
+																	JOIN FSDBRGSP ON FSDORDSC.KODE_BARANG = FSDBRGSP.KODE_BARANG
+																	JOIN FSDROSWC ON FSDORDSC.NOMOR_RO = FSDROSWC.NO_RO
+																	WHERE FSDORDSC.NO_PERMINTAAN ='$rvCekDataSW->no_permintaan'";	*/																
+																	$qCekKirimDariStok = "select DISTINCT FSDORDSC.NO_PERMINTAAN, FSDORDSC.TGL_PERMINTAAN, FSDORDSC.TGL_BUAT_FSD, 
+																							FSDORDSC.KODE_BARANG, 
+																							FSDBRGSP.NAMA_BARANG,
+																							FSDORDSC.JUMLAH_PERMINTAAN, FSDORDSC.JUMLAH_ORDER, FSDORDSC.KIRIM_DARI_STOK, FSDORDSC.TGL_DISETUJUI, 
+																							FSDORDSC.NOMOR_RO, FSDORDSC.STATUS_PERMINTAAN
+																							from FSDORDSC 
+																							JOIN FSDBRGSP ON FSDORDSC.KODE_BARANG = FSDBRGSP.KODE_BARANG
+																							where FSDORDSC.NO_PERMINTAAN = '".$rvCekDataSW->no_permintaan."'
+																							AND FSDORDSC.JUMLAH_PERMINTAAN IS NOT NULL order by FSDORDSC.TGL_PERMINTAAN DESC";
+																	$qobjParseCekKirimDariStok = oci_parse ($objConnectShowSW, $qCekKirimDariStok);  
+																						oci_execute ($qobjParseCekKirimDariStok,OCI_DEFAULT); 
+																	$rvCekKirimDariStok = oci_fetch_array($qobjParseCekKirimDariStok,OCI_BOTH);
+																	##echo "<br>STATUS_PERMINTAAN : ".$rvCekKirimDariStok['STATUS_PERMINTAAN'];
+																	if($rvCekKirimDariStok['STATUS_PERMINTAAN']=='D')
+																	{
+																		##echo "<br>STATUS PERMINTAAN DISETUJUI OLEH FSD";
+																		$qvCekDataSW = mysql_query("SELECT DISTINCT ticket_id, no_permintaan, request_by, kode_tipebarang, kode_tipebarang_sw, kode_tipebarang_sp,
+																		kuantitas, nama_tipebarang, nama_tipebarang_sw, nama_tipebarang_sp
+																		FROM ITH_TIPEBARANG_KODE
+																		WHERE ticket_id = '$_GET[pid]'");
+																		$rvCekDataSW = mysql_fetch_object($qvCekDataSW);			
+																		#echo "<br>Nomor Permintaan : ".$rvCekDataSW->no_permintaan;																			
+																		$objConnectShowSW = oci_connect('fsd', 'fsd', 'localhost:1521/XE'); 
+																		$qShowSW = "select DISTINCT FSDORDSC.NO_PERMINTAAN, FSDORDSC.TGL_PERMINTAAN, FSDORDSC.TGL_BUAT_FSD, 
+																					FSDORDSC.KODE_BARANG, 
+																					FSDBRGSP.NAMA_BARANG,
+																					FSDORDSC.JUMLAH_PERMINTAAN, FSDORDSC.JUMLAH_ORDER, FSDORDSC.KIRIM_DARI_STOK, FSDORDSC.TGL_DISETUJUI, 
+																					FSDORDSC.NOMOR_RO, FSDORDSC.STATUS_PERMINTAAN
+																					from FSDORDSC 
+																					JOIN FSDBRGSP ON FSDORDSC.KODE_BARANG = FSDBRGSP.KODE_BARANG
+																					where FSDORDSC.NO_PERMINTAAN = '".$rvCekDataSW->no_permintaan."'
+																					AND FSDORDSC.JUMLAH_PERMINTAAN IS NOT NULL order by FSDORDSC.TGL_PERMINTAAN DESC";
+																		$qobjParseShowSW = oci_parse ($objConnectShowSW, $qShowSW);  
+																		oci_execute ($qobjParseShowSW,OCI_DEFAULT);	
+																		##echo "<br>1.NOMOR RO KOSONG + STATUS_PERMINTAAN : ".$rvCekKirimDariStok['STATUS_PERMINTAAN'];	
+																	}elseif($rvCekKirimDariStok['STATUS_PERMINTAAN']=='R')
+																	{	
+																		$objConnectShowSW = oci_connect('fsd', 'fsd', 'localhost:1521/XE'); 
+																		$qShowSW = "select DISTINCT FSDORDSC.NO_PERMINTAAN, FSDORDSC.TGL_PERMINTAAN, FSDORDSC.TGL_BUAT_FSD, 
+																		FSDORDSC.KODE_BARANG, 
+																		FSDBRGSP.NAMA_BARANG,
+																		FSDORDSC.JUMLAH_PERMINTAAN, FSDORDSC.JUMLAH_ORDER, FSDORDSC.KIRIM_DARI_STOK, FSDORDSC.TGL_DISETUJUI, 
+																		FSDORDSC.NOMOR_RO, FSDORDSC.STATUS_PERMINTAAN
+																		from FSDORDSC 
+																		JOIN FSDBRGSP ON FSDORDSC.KODE_BARANG = FSDBRGSP.KODE_BARANG
+																		where FSDORDSC.NO_PERMINTAAN = '".$rvCekDataSW->no_permintaan."'
+																		AND FSDORDSC.JUMLAH_PERMINTAAN IS NOT NULL order by FSDORDSC.TGL_PERMINTAAN DESC";
+																		$qobjParseShowSW = oci_parse ($objConnectShowSW, $qShowSW);  
+																		oci_execute ($qobjParseShowSW,OCI_DEFAULT);		
+																		echo "<br>2.NOMOR RO KOSONG + STATUS_PERMINTAAN : ".$rvCekKirimDariStok['STATUS_PERMINTAAN'];	
+																	}elseif($rvCekKirimDariStok['STATUS_PERMINTAAN']==' ')
+																	{	
+																		$objConnectShowSW = oci_connect('fsd', 'fsd', 'localhost:1521/XE'); 
+																		$qShowSW = "select DISTINCT FSDORDSC_TEMP.NO_PERMINTAAN, FSDORDSC_TEMP.TGL_PERMINTAAN, FSDORDSC_TEMP.TGL_BUAT_FSD, 
+																		FSDORDSC_TEMP.KODE_BARANG, 
+																		FSDBRGSP.NAMA_BARANG,
+																		FSDORDSC_TEMP.JUMLAH_PERMINTAAN, FSDORDSC_TEMP.JUMLAH_ORDER, FSDORDSC_TEMP.KIRIM_DARI_STOK, FSDORDSC_TEMP.TGL_DISETUJUI, 
+																		FSDORDSC_TEMP.NOMOR_RO, FSDORDSC_TEMP.STATUS_PERMINTAAN
+																		from FSDORDSC_TEMP 
+																		JOIN FSDBRGSP ON FSDORDSC_TEMP.KODE_BARANG = FSDBRGSP.KODE_BARANG
+																		where FSDORDSC_TEMP.NO_PERMINTAAN = '".$rvCekDataSW->no_permintaan."'
+																		AND FSDORDSC_TEMP.JUMLAH_PERMINTAAN IS NOT NULL order by FSDORDSC_TEMP.TGL_PERMINTAAN DESC";
+																		$qobjParseShowSW = oci_parse ($objConnectShowSW, $qShowSW);  
+																		oci_execute ($qobjParseShowSW,OCI_DEFAULT);  #echo "<br>Test 2X";
+																		#echo '<br>Nomor permintaan : '.$rvCekDataSW->no_permintaan;
+																		#echo '<br>Nomor RO : '.$rvCekNomorROSW['NOMOR_RO'];
+																		##echo "<br>3.NOMOR RO KOSONG + STATUS_PERMINTAAN KOSONG";
+																	}
+															}														
+														#}													
+													}													
+															while($rvSCatShowSW = oci_fetch_array($qobjParseShowSW,OCI_BOTH))  
+															{  
+															?>  												
+															<tr>												
+																<td width="7%">
+																	<center><?=$rvSCatShowSW["NO_PERMINTAAN"];?></center>
+																</td>
+																<td width="17%">
+																	<center><?=$rvSCatShowSW["TGL_PERMINTAAN"];?></center>
+																</td>
+																
+																<td width="20%">
+																<center><?=$rvSCatShowSW["KODE_BARANG"];?></center>
+																</td>														
+																<td width="20%">
+																<center><?=$rvSCatShowSW["NAMA_BARANG"];?></center>
+																</td>														
+																<td width="15%">
+																	<center><?=$rvSCatShowSW["JUMLAH_PERMINTAAN"].' <b>UNIT</b>';?>
+																	<? if($rvSCatShowSW["NOMOR_RO"]!=''){ ?>
+																		<br><?="<b>No.RO : ".$rvSCatShowSW["NOMOR_RO"].'</b>';?>
+																	<? }elseif($rvSCatShowSW["NOMOR_RO"]==''){ ?>
+																		<br><?="<b>No.RO : Belum Ada Nomor RO</b>";?>
+																	<? } ?>																	
+																	<? if($rvSCatShowSW["NO_PO"]!=''){ ?>
+																		<br><?="<b>No.PO : ".$rvSCatShowSW["NO_PO"].'</b>';?>
+																	<? }elseif($rvSCatShowSW["NO_PO"]==''){ ?>
+																		<br><?="<b>No.PO : - </b>";?>
+																	<? } ?>
+																	</center>
+																</td>
+																<td width="15%">
+																<center>
+																<?
+																if($rvSCatShowSW["KIRIM_DARI_STOK"]=='0')
+																{
+																	#echo "<br>ADA NOMOR RO<br>";
+																	if(($rvSCatShowSW["STATUS_PERMINTAAN"]==' ')&&($rvSCatShowSW["STATUS_KIRIM"]==''))
+																	{
+																		if($rvSCatShowSW["STATUS_PERMINTAAN"]==' '){ 
+																			#echo "Tiket ID : ".$_GET[pid];
+																			$qcekstoretiketstatus = mysql_query("SELECT ticketstatus_id FROM ITH_TICKET_HEADER WHERE ticket_id = '".$_GET['pid']."' ");
+																			$rcekstoretiketstatus = mysql_fetch_object($qcekstoretiketstatus);
+																			#echo "<br>SELECT tiketstatus_id FROM ITH_TICKET_HEADER WHERE ticket_id = '".$_GET['pid']."'";
+																			#echo 'Tiket Status = '.$rcekstoretiketstatus->ticketstatus_id;
+																			if($rcekstoretiketstatus->ticketstatus_id=='1')
+																			{
+																				echo "<br>MENUNGGU DI ASSIGNMENT OLEH ADMIN";																				
+																			}	
+																			elseif($rcekstoretiketstatus->ticketstatus_id=='2')
+																			{
+																				echo "<br>Menunggu di Approval untuk tiket ".$_GET['pid'];																					
+																			}	
+																			elseif($rcekstoretiketstatus->ticketstatus_id=='3')
+																			{
+																				echo "<br>Maaf, tiket ini (".$_GET['pid'].') Sudah Di Batalkan. Terimakasih.';																					
+																			}	
+																		}elseif($rvSCatShowSW["STATUS_PERMINTAAN"]=='D'){ echo "Barang Sudah Disetujui Oleh FSD MGR/SUB MGR";																
+																		}elseif($rvSCatShowSW["STATUS_PERMINTAAN"]=='R'){ echo "Barang Sedang Diproses FSD untuk Tutup Hari";}	
+																	}elseif(($rvSCatShowSW["STATUS_PERMINTAAN"]=='D')&&($rvSCatShowSW["STATUS_KIRIM"]==''))
+																	{
+																		if($rvSCatShowSW["STATUS_PERMINTAAN"]==' '){ echo "Menunggu Persetujuan untuk tiket ".$_GET['pid'];												
+																		}elseif($rvSCatShowSW["STATUS_PERMINTAAN"]=='D'){ echo "Barang Sudah Disetujui Oleh FSD MGR/SUB MGR";																
+																		}elseif($rvSCatShowSW["STATUS_PERMINTAAN"]=='R'){ echo "Barang Sedang Diproses FSD untuk Tutup Hari";}	
+																	}elseif(($rvSCatShowSW["STATUS_PERMINTAAN"]=='R')&&($rvSCatShowSW["STATUS"]==' ')&&($rvSCatShowSW["STATUS_KIRIM"]=='')){
+																		if($rvSCatShowSW["STATUS"]==' '){ echo "Barang Sedang Diproses FSD untuk Tutup Hari";												
+																		}elseif($rvSCatShowSW["STATUS"]=='O'){ echo "Barang Sedang Proses Order";																
+																		}elseif($rvSCatShowSW["STATUS"]=='P'){ echo "Barang Sudah Proses DO Balik";}
+																	}elseif(($rvSCatShowSW["STATUS_PERMINTAAN"]=='R')&&
+																			(($rvSCatShowSW["STATUS"]=='O')||($rvSCatShowSW["STATUS"]=='P')||($rvSCatShowSW["STATUS"]=='C'))&&
+																			($rvSCatShowSW["STATUS_KIRIM"]=='')){
+																		if($rvSCatShowSW["STATUS"]==' '){ echo "Barang Sedang Diproses FSD untuk Tutup Hari";												
+																		}elseif($rvSCatShowSW["STATUS"]=='O'){ echo "X1<br>Barang Sedang Proses Order Ke Procurement";																
+																		}elseif($rvSCatShowSW["STATUS"]=='P'){ echo "Barang Sudah Proses DO Balik";
+																		}elseif($rvSCatShowSW["STATUS"]=='C'){ echo "Barang Dibatalkan Pemesanannya";}
+																	}elseif(($rvSCatShowSW["STATUS_KIRIM"]!='')){
+																		if($rvSCatShowSW["STATUS_KIRIM"]=='K'){ echo "Barang Proses Dikirim Ke Store";														
+																		}elseif($rvSCatShowSW["STATUS_KIRIM"]=='D'){ echo "Barang Sudah Diterima Oleh Store";																
+																		}	
+																	}	
+																}	
+																elseif($rvSCatShowSW["KIRIM_DARI_STOK"]!='0')
+																{
+																	##echo "<br>ADA NOMOR RO<br>";
+																	if(($rvSCatShowSW["STATUS_PERMINTAAN"]==' '))
+																	{
+																		if($rvSCatShowSW["STATUS_PERMINTAAN"]==' '){ echo "Menunggu Persetujuan untuk tiket ".$_GET['pid'];												
+																		}elseif($rvSCatShowSW["STATUS_PERMINTAAN"]=='D'){ echo "Barang Sudah Disetujui Oleh FSD MGR/SUB MGR";																
+																		}elseif($rvSCatShowSW["STATUS_PERMINTAAN"]=='R'){ echo "Barang Sedang Diproses FSD untuk Tutup Hari";}	
+																	
+																	}elseif(($rvSCatShowSW["STATUS_PERMINTAAN"]=='D'))
+																	{   #echo "<br>STATUS_PERMINTAAN DISETUJUI<br>";
+																		if($rvSCatShowSW["STATUS_PERMINTAAN"]==' '){ echo "Menunggu Persetujuan untuk tiket ".$_GET['pid'];												
+																		}elseif($rvSCatShowSW["STATUS_PERMINTAAN"]=='D'){ echo "Barang Sudah Disetujui Oleh FSD MGR/SUB MGR";																
+																		}elseif($rvSCatShowSW["STATUS_PERMINTAAN"]=='R'){ echo "Barang Sedang Diproses FSD untuk Tutup Hari";}	
+																	
+																	}elseif(($rvSCatShowSW["STATUS_PERMINTAAN"]=='R')&&($rvSCatShowSW["STATUS"]==' '))
+																	{
+																		if($rvSCatShowSW["STATUS"]==' '){ echo "Barang Sedang Diproses FSD untuk Tutup Hari";												
+																		}elseif($rvSCatShowSW["STATUS"]=='O'){ echo "X2<br>Barang Sedang Proses Pesan(Order) dari Gudang";																
+																		}elseif($rvSCatShowSW["STATUS"]=='P'){ echo "Barang Sudah Proses DO Balik";}
+																
+																	#}elseif(($rvSCatShowSW["STATUS_KIRIM"]!='')){
+																	}elseif(($rvSCatShowSW["STATUS_PERMINTAAN"]=='R')&&
+																			(($rvSCatShowSW["STATUS"]=='O')||($rvSCatShowSW["STATUS"]=='P')||($rvSCatShowSW["STATUS"]=='C'))
+																			)
+																	{	
+																		if($rvSCatShowSW["STATUS"]==' '){ echo "Barang Sedang Diproses FSD untuk Tutup Hari";												
+																		}elseif($rvSCatShowSW["STATUS"]=='O'){ /* echo "X3<br>Barang Sedang Proses Pesan(Order) dari Gudang";*/ 
+																			$qvCekDataSW2 = mysql_query("SELECT DISTINCT ticket_id, no_permintaan, request_by, kode_tipebarang, kode_tipebarang_sw, kode_tipebarang_sp,
+																			kuantitas, nama_tipebarang, nama_tipebarang_sw, nama_tipebarang_sp
+																			FROM ITH_TIPEBARANG_KODE
+																			WHERE ticket_id = '$_GET[pid]'");
+																			$rvCekDataSW2 = mysql_fetch_object($qvCekDataSW2);																			
+																			$objConnectShowSW = oci_connect('fsd', 'fsd', 'localhost:1521/XE'); 
+																			$qShowSW2 = "select KIRIM_DARI_STOK
+																			from FSDORDSC 
+																			where NO_PERMINTAAN = '$rvCekDataSW2->no_permintaan'
+																			";
+																			$qobjParseShowSW2 = oci_parse ($objConnectShowSW, $qShowSW2);  
+																			oci_execute ($qobjParseShowSW2,OCI_DEFAULT);																					
+																			$rvSCatShowSW2 = oci_fetch_array($qobjParseShowSW2,OCI_BOTH);
+																			if($rvSCatShowSW2["KIRIM_DARI_STOK"]=='0'){
+																				echo "Barang Sedang Proses Pesan(Order) Ke Procurement";						
+																				$qShowStsBrgFrmProcSW = "select STATUS_BARANG from PROCPOSWC where NO_RO = '".$rvSCatShowSW["NOMOR_RO"]."' AND KODE_BARANG = '".$rvSCatShowSW["KODE_BARANG"]."'";
+																				$qobjParseShowStsBrgFrmProcSW = oci_parse ($objConnectShowSW, $qShowStsBrgFrmProcSW);  
+																					   oci_execute ($qobjParseShowStsBrgFrmProcSW,OCI_DEFAULT); 	
+																				$rvSCatShowStsBrgFrmProcSW = oci_fetch_array($qobjParseShowStsBrgFrmProcSW,OCI_BOTH);  																			
+																				if($rvSCatShowStsBrgFrmProcSW['STATUS_BARANG']=='Barang Dalam Pemesanan'){
+																					echo "<br>Dan Saat ini Barang masih dalam Pemesanan";
+																				}elseif($rvSCatShowStsBrgFrmProcSW['STATUS_BARANG']=='Barang Dikirim Ke FSD'){
+																				echo "<br>Dan Saat ini Barang dalam Proses Dikirim Ke FSD";	
+																				}																					
+																			}elseif($rvSCatShowSW2["KIRIM_DARI_STOK"]!='0'){
+																				echo "Barang Sedang Proses Pesan(Order) dari Gudang";		
+																			
+																			}
+																			
+																		}elseif($rvSCatShowSW["STATUS"]=='P'){ 
+																			$qcekstoretiketstatus2 = mysql_query("SELECT ticketstatus_id FROM ITH_TICKET_HEADER WHERE ticket_id = '".$_GET['pid']."' ");
+																			$rcekstoretiketstatus2 = mysql_fetch_object($qcekstoretiketstatus2);
+																			#echo "<br>SELECT tiketstatus_id FROM ITH_TICKET_HEADER WHERE ticket_id = '".$_GET['pid']."'";
+																			#echo 'Tiket Status = '.$rcekstoretiketstatus->ticketstatus_id;
+																			if($rcekstoretiketstatus2->ticketstatus_id=='5')
+																			{																			
+																				echo "Barang Sudah Diterima Oleh Store (Proses DO Balik)";
+																			}
+																		}elseif($rvSCatShowSW["STATUS"]=='C'){ echo "Barang Dibatalkan Pemesanannya";}
+																		echo "<br>";
+																		
+																		$qStatusKirimKeStore = "select STATUS_KIRIM from FSDKRMSW where NO_RO = '".$rvSCatShowSW['NOMOR_RO']."'";
+																		$qobjParseStatusKirimKeStore = oci_parse ($objConnectShowSW, $qStatusKirimKeStore);  
+																	                  oci_execute ($qobjParseStatusKirimKeStore,OCI_DEFAULT);
+																		$rvStatusKirimKeStore = oci_fetch_array($qobjParseStatusKirimKeStore,OCI_BOTH);	
+																		#echo "<br>STATUS_KIRIM : ".$rvStatusKirimKeStore['STATUS_KIRIM'];
+																	#	if(($rvStatusKirimKeStore['STATUS_KIRIM']=='K')||($rvStatusKirimKeStore['STATUS_KIRIM']=='D'))
+																			$qcekstoretiketstatus3 = mysql_query("SELECT ticketstatus_id FROM ITH_TICKET_HEADER WHERE ticket_id = '".$_GET['pid']."' ");
+																			$rcekstoretiketstatus3 = mysql_fetch_object($qcekstoretiketstatus3);
+																			#echo "<br>SELECT tiketstatus_id FROM ITH_TICKET_HEADER WHERE ticket_id = '".$_GET['pid']."'";
+																			#echo 'Tiket Status = '.$rcekstoretiketstatus->ticketstatus_id;
+																			if($rcekstoretiketstatus3->ticketstatus_id=='0')
+																			{																		
+																				if(($rvStatusKirimKeStore['STATUS_KIRIM']=='K'))
+																				{		
+																					if($rvStatusKirimKeStore["STATUS_KIRIM"]=='K'){ echo "Dan Barang Dalam Proses Kirim Ke Store C";														
+																					#}elseif($rvStatusKirimKeStore["STATUS_KIRIM"]=='D'){ echo "Dan Barang Sudah Diterima Oleh Store";																
+																					}	
+																				}	echo "<br>";
+																			}
+																	}	
+																}	
+															#}	
+																?>
+																</center>
+																</td>	
+															</tr>
+														<? } ?>										
+										
+									<? }elseif($rcektipebrgs->kode_tipebrg=='RQS-03-000114'){ 
+										$qCekStatusApprvlufb = mysql_query("SELECT ticketapprovalstatus_id, ticketapprovalstatus_id2, ticketapprovalstatus_id3
+										FROM ITH_TICKET_HEADER WHERE ticket_id = '".$_GET['pid']."'");
+										$rCekStatusApprvlufb = mysql_fetch_object($qCekStatusApprvlufb);
+										
+										if($rCekStatusApprvlufb->ticketapprovalstatus_id==1)
+										{  // UFB Setelah Di approval			
+										echo "<br>Status Approval : ".$rCekStatusApprvlufb->ticketapprovalstatus_id;	
+										$qvCekDataSP = mysql_query("SELECT DISTINCT ticket_id, no_permintaan, request_by, kode_tipebarang, kode_tipebarang_sw, kode_tipebarang_sp,
+															kuantitas, nama_tipebarang, nama_tipebarang_sw, nama_tipebarang_sp
+															FROM ITH_TIPEBARANG_KODE WHERE ticket_id = '".$_GET['pid']."'");
+															$rvCekDataSP = mysql_fetch_object($qvCekDataSP);
+															
+															$objConnectShowSP = oci_connect('fsd', 'fsd', 'localhost:1521/XE'); 
+															$qShowSP = "select FSDORDSP.NO_PERMINTAAN, FSDORDSP.TGL_PERMINTAAN, FSDORDSP.TGL_BUAT_FSD, FSDORDSP.KODE_BARANG, 
+															FSDBRGSP.NAMA_BARANG,
+															FSDORDSP.JUMLAH_PERMINTAAN, FSDORDSP.JUMLAH_ORDER, FSDORDSP.TGL_DISETUJUI, 
+															FSDORDSP.NOMOR_RO, FSDORDSP.STATUS_PERMINTAAN
+															from FSDORDSP 
+															JOIN FSDBRGSP ON FSDORDSP.KODE_BARANG = FSDBRGSP.KODE_BARANG
+															where FSDORDSP.NO_PERMINTAAN = '".$rvCekDataSP->no_permintaan."'
+															AND FSDORDSP.JUMLAH_PERMINTAAN IS NOT NULL order by FSDORDSP.TGL_PERMINTAAN DESC";  
+															$qobjParseShowSP = oci_parse ($objConnectShowSP, $qShowSP);  
+															oci_execute ($qobjParseShowSP,OCI_DEFAULT);  
+
+															while($rvSCatShowSP = oci_fetch_array($qobjParseShowSP,OCI_BOTH))  
+															{  
+															?>  												
+															<tr>												
+																<td width="7%">
+																	<center>123</center>
+																</td>
+																<td width="17%">
+																	<center>06/08/2018</center>
+																</td>
+																
+																<td width="20%">
+																<center>A123</center>
+																</td>														
+																<td width="20%">
+																<center>M</center>
+																</td>														
+																<td width="15%">
+																	<center><?=$rvSCatShowSP["JUMLAH_PERMINTAAN"].' <b>UNIT</b>';?>
+																	<? if($rvSCatShowSP["NOMOR_RO"]!=''){ ?>
+																		<br><?="<b>No.RO : ".$rvSCatShowSP["NOMOR_RO"].'</b>';?>
+																	<? }elseif($rvSCatShowSP["NOMOR_RO"]==''){ ?>
+																		<br><?="<b>No.RO : Belum Ada Nomor RO</b>";?>
+																	<? } ?>																	
+																	<? if($rvSCatShowSP["NO_PO"]!=''){ ?>
+																		<br><?="<b>No.PO : ".$rvSCatShowSP["NO_PO"].'</b>';?>
+																	<? }elseif($rvSCatShowSP["NO_PO"]==''){ ?>
+																		<br><?="<b>No.PO : - </b>";?>
+																	<? } ?>
+																	</center>
+																</td>
+																<td width="15%">
+																<center><? if($rvSCatShowSP["STATUS_PERMINTAAN"]=='S'){ echo "Barang Kirim Ke Store";
+																}elseif($rvSCatShowSP["STATUS_PERMINTAAN"]=='F'){ echo "Barang Masih ada diFSD";																	
+																}elseif($rvSCatShowSP["STATUS_PERMINTAAN"]=='X'){ echo "Barang Dalam Proses Procurement";																	
+																}elseif($rvSCatShowSP["STATUS_PERMINTAAN"]=='R'){ echo "Barang Sedang Dalam Proses FSD";
+																}elseif($rvSCatShowSP["STATUS_PERMINTAAN"]=='B'){ echo "Barang Belum Diterima Oleh Store";
+																}elseif($rvSCatShowSP["STATUS_PERMINTAAN"]=='O'){ echo "Barang Sudah Diterima Oleh Store";																
+																}elseif($rvSCatShowSP["STATUS_PERMINTAAN"]==' '){ echo "Menunggu Persetujuan untuk tiket ".$_GET['pid'];
+																}else{
+																	echo "Menunggu Persetujuan dari Atasan FSD.";
+																}	
+																?></center>																	
+																</td>																	
+															</tr>
+														<? } ?>		
+											<? oci_close($objConnectShowSP); ?>			
+										<? }elseif($rCekStatusApprvlufb->ticketapprovalstatus_id==2)
+										{  // UFB Sebelum Di approval			
+											$qvCekDataSPX = mysql_query("SELECT no_permintaan FROM ITH_TIPEBARANG_KODE WHERE ticket_id = '".$_GET['pid']."'");
+															$rvCekDataSPX = mysql_fetch_object($qvCekDataSPX);
+										#	echo "<br>Tiket ID = ".$_GET['pid'];
+										#	echo "<br>Nomor Permintaan = ".$rvCekDataSPX->no_permintaan;
+															$objConnectShowSPX = oci_connect('fsd', 'fsd', 'localhost:1521/XE'); 
+														/****
+															$qShowSPX = "select FSDORDSP.NO_PERMINTAAN, FSDORDSP.TGL_PERMINTAAN, FSDORDSP.TGL_BUAT_FSD, FSDORDSP.KODE_BARANG, 
+															FSDBRGSP.NAMA_BARANG,
+															FSDORDSP.JUMLAH_PERMINTAAN, FSDORDSP.JUMLAH_ORDER, FSDORDSP.TGL_DISETUJUI, 
+															FSDORDSP.NOMOR_RO, FSDORDSP.STATUS_PERMINTAAN
+															from FSDORDSP 
+															JOIN FSDBRGSP ON FSDORDSP.KODE_BARANG = FSDBRGSP.KODE_BARANG
+															where FSDORDSP.NO_PERMINTAAN = 'GPB-438A'
+															ORDER BY FSDORDSP.TGL_PERMINTAAN DESC";
+														****/
+															#$qShowSPX = "SELECT NO_PERMINTAAN, TGL_PERMINTAAN, KODE_BARANG FROM FSDORDSP_TEMP";
+															
+															$qShowSPX = "select FSDORDSP_TEMP.NO_PERMINTAAN, FSDORDSP_TEMP.TGL_PERMINTAAN, 
+																		FSDORDSP_TEMP.TGL_BUAT_FSD, FSDORDSP_TEMP.KODE_BARANG,FSDBRGSP.NAMA_BARANG,
+																		FSDORDSP_TEMP.JUMLAH_PERMINTAAN, FSDORDSP_TEMP.JUMLAH_ORDER, FSDORDSP_TEMP.TGL_DISETUJUI, 
+																		FSDORDSP_TEMP.NOMOR_RO, FSDORDSP_TEMP.STATUS_PERMINTAAN
+																		from FSDORDSP_TEMP 
+																		JOIN FSDBRGSP ON FSDORDSP_TEMP.KODE_BARANG = FSDBRGSP.KODE_BARANG
+																		WHERE FSDORDSP_TEMP.NO_PERMINTAAN = '".$rvCekDataSPX->no_permintaan."'
+																		ORDER BY FSDORDSP_TEMP.TGL_PERMINTAAN DESC"; 															
+														
+														/*
+															$qShowSPX = "select FSDORDSP_TEMP.NO_PERMINTAAN, FSDORDSP_TEMP.TGL_PERMINTAAN, 
+															FSDORDSP_TEMP.TGL_BUAT_FSD, FSDORDSP_TEMP.KODE_BARANG,FSDBRGSP.NAMA_BARANG,
+															FSDORDSP_TEMP.JUMLAH_PERMINTAAN, FSDORDSP_TEMP.JUMLAH_ORDER, FSDORDSP_TEMP.TGL_DISETUJUI, 
+															FSDORDSP_TEMP.NOMOR_RO, FSDORDSP_TEMP.STATUS_PERMINTAAN
+															from FSDORDSP_TEMP 
+															JOIN FSDBRGSP ON FSDORDSP_TEMP.KODE_BARANG = FSDBRGSP.KODE_BARANG
+															where FSDORDSP_TEMP.NO_PERMINTAAN = '".$rvCekDataSPX->NO_PERMINTAAN."'
+															AND FSDORDSP_TEMP.JUMLAH_PERMINTAAN IS NOT NULL 
+															ORDER BY FSDORDSP_TEMP.TGL_PERMINTAAN DESC";  
+														*/
+														/*	$qShowSPX = "select FSDORDSP_TEMP.NO_PERMINTAAN, FSDORDSP_TEMP.TGL_PERMINTAAN, 
+																		FSDORDSP_TEMP.TGL_BUAT_FSD, FSDORDSP_TEMP.KODE_BARANG,FSDBRGSP.NAMA_BARANG,
+																		FSDORDSP_TEMP.JUMLAH_PERMINTAAN, FSDORDSP_TEMP.JUMLAH_ORDER, FSDORDSP_TEMP.TGL_DISETUJUI, 
+																		FSDORDSP_TEMP.NOMOR_RO, FSDORDSP_TEMP.STATUS_PERMINTAAN
+																		from FSDORDSP_TEMP 
+																		JOIN FSDBRGSP ON FSDORDSP_TEMP.KODE_BARANG = FSDBRGSP.KODE_BARANG
+																		where FSDORDSP_TEMP.NO_PERMINTAAN = '0818/39443'
+																		ORDER BY FSDORDSP_TEMP.TGL_PERMINTAAN DESC";  
+														*/																
+															$qobjParseShowSPX = oci_parse ($objConnectShowSPX, $qShowSPX);  
+															oci_execute ($qobjParseShowSPX,OCI_DEFAULT);   
+														#	$rvSCatShowSPX2 = oci_fetch_array($qobjParseShowSPX,OCI_BOTH);
+														#	echo "<br><b>Nomor Permintaan : ".$rvSCatShowSPX2["NO_PERMINTAAN"]."</b>";
+															while($rvSCatShowSPX = oci_fetch_array($qobjParseShowSPX,OCI_BOTH))  
+															{  
+														#echo "NOMOR PERMINTAAN = ".$rvSCatShowSPX["NO_PERMINTAAN"];
+															?>  												
+															<tr>												
+																<td width="7%">
+																	<center><?=$rvSCatShowSPX["NO_PERMINTAAN"];?></center>
+																</td>
+																<td width="17%">
+																	<center><?=$rvSCatShowSPX["TGL_PERMINTAAN"];?></center>
+																</td>
+																
+																<td width="20%">
+																<center><?=$rvSCatShowSPX["KODE_BARANG"];?></center>
+																</td>														
+																<td width="20%">
+																<center><?=$rvSCatShowSPX["NAMA_BARANG"];?></center>
+																</td>														
+																<td width="15%">
+																	<center><?=$rvSCatShowSPX["JUMLAH_PERMINTAAN"].' <b>UNIT</b>';?>
+																	<? if($rvSCatShowSPX["NOMOR_RO"]!=''){ ?>
+																		<br><?="<b>No.RO : ".$rvSCatShowSPX["NOMOR_RO"].'</b>';?>
+																	<? }elseif(($rvSCatShowSPX["NOMOR_RO"]=='')||($rvSCatShowSPX["NOMOR_RO"]==NULL)){ ?>
+																		<br><?="<b>No.RO : Belum Ada Nomor RO</b>";?>
+																	<? } ?>																	
+																	<? if($rvSCatShowSPX["NO_PO"]!=''){ ?>
+																		<br><?="<b>No.PO : ".$rvSCatShowSPX["NO_PO"].'</b>';?>
+																	<? }elseif($rvSCatShowSPX["NO_PO"]==''){ ?>
+																		<br><?="<b>No.PO : - </b>";?>
+																	<? } ?>
+																	</center>
+																</td>
+																<td width="15%">
+																<center><? if($rvSCatShowSPX["STATUS_PERMINTAAN"]=='S'){ echo "Barang Kirim Ke Store";
+																}elseif($rvSCatShowSPX["STATUS_PERMINTAAN"]=='F'){ echo "Barang Masih ada diFSD";																	
+																}elseif($rvSCatShowSPX["STATUS_PERMINTAAN"]=='X'){ echo "Barang Dalam Proses Procurement";																	
+																}elseif($rvSCatShowSPX["STATUS_PERMINTAAN"]=='R'){ echo "Barang Sedang Dalam Proses FSD";
+																}elseif($rvSCatShowSPX["STATUS_PERMINTAAN"]=='B'){ echo "Barang Belum Diterima Oleh Store";
+																}elseif($rvSCatShowSPX["STATUS_PERMINTAAN"]=='O'){ echo "Barang Sudah Diterima Oleh Store";																
+																}elseif($rvSCatShowSPX["STATUS_PERMINTAAN"]==' '){ echo "Menunggu Persetujuan untuk tiket ".$_GET['pid'];
+																}else{
+																	echo "Menunggu Persetujuan dari Atasan FSD.";
+																}	
+																?></center>																	
+																</td>																	
+															</tr>
+														<? } ?>			
+											<? oci_close($objConnectShowSPX); ?>					
+										<? } ?>
+
+									<? } ?>	
+								<? } /* STATUS OPEN DAN BELUM ADA TIKET REFERENCE ATAU STATUS OPEN DAN SUDAH ADA TIKET REFERENCE */ ?>	
+													</tbody>
+												</table>	
+												</div>
+		<!--? }elseif($detailmyticket->statuslaporan_name=='Problem Teknisi Store'){ ?-->
+		<? }elseif($detailmyticket->statuslaporan_name=='Problem'){ ?>
+		<b><u>PERMASALAHAN DARI CABANG A2 (
+			<?
+				$qcektipebrgsx = mysql_query("SELECT kode_tipebrg FROM ITH_TICKET_HEADER where ticket_id = '$_GET[pid]'");
+				$rcektipebrgsx = mysql_fetch_object($qcektipebrgsx);
+				if($rcektipebrgsx->kode_tipebrg=='RQS-03-000112'){ 
+			?>
+				<?="EQUIPMENT";?>
+			<?	}elseif($rcektipebrgsx->kode_tipebrg=='RQS-03-000113'){  ?>
+				<?="SMALLWARE";?>
+			<?	}elseif($rcektipebrgsx->kode_tipebrg=='RQS-03-000114'){ ?>
+				<?="SPAREPART";?>
+			<?	}
+			?>
+		)</u></b></center><br>		
+			<script src="jquery/jquery.min.js"></script>
+			<script>
+				$(document).ready(function()
+				{
+					$("#equipmentsrc").on("keyup", function() 
+					{
+						var value = $(this).val().toLowerCase();
+						$("#myCodes tr").filter(function() 
+						{
+							$(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+						});
+					});
+					$("#smallwaresrc").on("keyup", function() 
+					{
+						var value = $(this).val().toLowerCase();
+						$("#myCodes tr").filter(function() 
+						{
+							$(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+						});
+					});
+					$("#sparepartsrc").on("keyup", function() 
+					{
+						var value = $(this).val().toLowerCase();
+						$("#myCodes tr").filter(function() 
+						{
+							$(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+						});
+					});
+				});
+			</script>
+			<style>
+				table.blueTable 
+				{
+					border: 1px solid #1C6EA4; background-color: #EEEEEE; width: 100%;
+					text-align: left; border-collapse: collapse; overflow-x:scroll;height:100px; position:relative;
+				}
+				table.blueTable td, table.blueTable th 
+				{
+					border: 1px solid #AAAAAA; padding: 3px 2px;				  
+				}
+				table.blueTable tbody td { font-size: 13px; }
+				table.blueTable tr:nth-child(even) { background: #D0E4F5; }
+				table.blueTable thead 
+				{ 
+					background: #1C6EA4; background: -moz-linear-gradient(top, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+					background: -webkit-linear-gradient(top, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+					background: linear-gradient(to bottom, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+					border-bottom: 2px solid #444444;
+				}
+				table.blueTable thead th 
+				{
+					font-size: 12px; text-align:center; font-weight: bold; color: #000; border-left: 2px solid #D0E4F5;
+				}
+				table.blueTable thead th:first-child { border-left: none; }
+				table.blueTable tfoot 
+				{ 
+					font-size: 14px; font-weight: bold; color: #000; background: #D0E4F5;
+					background: -moz-linear-gradient(top, #dcebf7 0%, #d4e6f6 66%, #D0E4F5 100%);
+					background: -webkit-linear-gradient(top, #dcebf7 0%, #d4e6f6 66%, #D0E4F5 100%);
+					background: linear-gradient(to bottom, #dcebf7 0%, #d4e6f6 66%, #D0E4F5 100%);
+					border-top: 2px solid #444444;
+				}
+				table.blueTable tfoot td { font-size: 14px; }
+				table.blueTable tfoot .links { text-align: right; }
+				table.blueTable tfoot .links a{ display: inline-block; background: #1C6EA4; color: #000; padding: 2px 8px; border-radius: 5px; }			
+				</style>
+				<input id="equipmentsrc" type="text" placeholder="Search..">
+					<table class="blueTable" border="1"> 
+						<thead>
+							<tr>
+								<?  
+									$objConnect = oci_connect('fsd', 'fsd', 'localhost:1521/XE'); 
+								?>														
+									<th width="7%">No<br>Permasalahan</th>
+									<th width="17%">Tgl<br>Permasalahan</th>
+									<th width="20%">Kode<br>Barang</th>
+									<th width="20%">Nama<br>Barang</th>
+									<!--<th width="15%">Jumlah<br>Permasal</th>-->
+									<th width="10%" style="display:none;">STK<br>BARU</th>
+									<th width="10%" style="display:none;">STK<br>BAIK</th>
+									<th width="10%" style="display:none;">STK<br>LAMA</th>
+							</tr>													
+						</thead>
+					</table>								
+					<div style="width:100%; height:100px; overflow:auto;position:relative;">
+						<table class="blueTable" border="1">
+							<tbody id="myCodes">
+								<?  
+									$qcektipebrgdetail = mysql_query("SELECT ITH_TICKET_HEADER.ticket_id, ITH_TICKET_HEADER.kode_tipebrg 
+															FROM ITH_TICKET_HEADER 
+															JOIN ITH_TIPEBRG ON ITH_TICKET_HEADER.kode_tipebrg = ITH_TIPEBRG.kode_tipebrg
+															WHERE ITH_TICKET_HEADER.kode_tipebrg != '' AND ITH_TICKET_HEADER.ticket_id = '".$_GET['pid']."'");
+									$rcektipebrgdetail = mysql_fetch_object($qcektipebrgdetail);	
+									if($rcektipebrgs->kode_tipebrg=='RQS-03-000112') /* EQUIPMENT INFO DI TIKET DETAIL */
+									{
+										$qvCekDataEQ = mysql_query("SELECT DISTINCT ITH_TIPEBARANG_KODE.NO_PERMINTAAN, ITH_TIPEBARANG_KODE.KODE_TIPEBARANG, ITH_TIPEBARANG_KODE.KODE_TIPEBARANG_SW, 
+														ITH_TIPEBARANG_KODE.NAMA_TIPEBARANG, ITH_TICKET_HEADER.ticket_createdate FROM ITH_TIPEBARANG_KODE 
+														JOIN ITH_TICKET_HEADER ON ITH_TIPEBARANG_KODE.ticket_id = ITH_TICKET_HEADER.ticket_id
+														WHERE ITH_TIPEBARANG_KODE.ticket_id = '".$_GET['pid']."' GROUP BY ITH_TIPEBARANG_KODE.KODE_TIPEBARANG ASC");														
+										while($rvSCatShowEQ = mysql_fetch_array($qvCekDataEQ)){					
+															
+															?>  												
+															<tr>												
+																<td width="7%">
+																	<center><?=$rvSCatShowEQ["NO_PERMINTAAN"];?></center>
+																</td>
+																<td width="17%">
+																	<center><?=$rvSCatShowEQ["ticket_createdate"];?></center>
+																</td>
+																
+																<td width="20%">
+																<center><?=$rvSCatShowEQ["KODE_TIPEBARANG"];?></center>
+																</td>														
+																<td width="20%">
+																<center><?=$rvSCatShowEQ["NAMA_TIPEBARANG"];?></center>
+																</td>		
+																<td width="15%">n/a</td>																
+																<td width="15%">n/a</td>																	
+															</tr>
+														<? } ?>	
+									<? }elseif($rcektipebrgs->kode_tipebrg=='RQS-03-000113'){ 
+										$qvCekDataSW = mysql_query("SELECT DISTINCT ITH_TIPEBARANG_KODE.NO_PERMINTAAN, ITH_TIPEBARANG_KODE.KODE_TIPEBARANG, ITH_TIPEBARANG_KODE.KODE_TIPEBARANG_SW, 
+														ITH_TIPEBARANG_KODE.NAMA_TIPEBARANG, ITH_TICKET_HEADER.ticket_createdate FROM ITH_TIPEBARANG_KODE 
+														JOIN ITH_TICKET_HEADER ON ITH_TIPEBARANG_KODE.ticket_id = ITH_TICKET_HEADER.ticket_id
+														WHERE ITH_TIPEBARANG_KODE.ticket_id = '".$_GET['pid']."' GROUP BY ITH_TIPEBARANG_KODE.KODE_TIPEBARANG ASC");
+															
+														
+															while($rvSCatShowSW = mysql_fetch_array($qvCekDataSW)){
+															?>  												
+															<tr>												
+																<td width="7%">
+																	<center><?=$rvSCatShowSW["NO_PERMINTAAN"];?></center>
+																</td>
+																<td width="17%">
+																	<center><?=$rvSCatShowSW["ticket_createdate"];?></center>
+																</td>
+																
+																<td width="20%">
+																<center><?=$rvSCatShowSW["KODE_TIPEBARANG_SW"];?></center>
+																</td>														
+																<td width="20%">
+																<center><?=$rvSCatShowSW["NAMA_TIPEBARANG"];?></center>
+																</td>														
+															</tr>
+														<? } ?>										
+										
+									<? }elseif($rcektipebrgs->kode_tipebrg=='RQS-03-000114'){ 
+										$qvCekDataSP = mysql_query("SELECT DISTINCT ITH_TIPEBARANG_KODE.NO_PERMINTAAN, ITH_TIPEBARANG_KODE.KODE_TIPEBARANG, 
+														ITH_TIPEBARANG_KODE.KODE_TIPEBARANG_SW, ITH_TIPEBARANG_KODE.KODE_TIPEBARANG_SP, 
+														ITH_TIPEBARANG_KODE.NAMA_TIPEBARANG, ITH_TICKET_HEADER.ticket_createdate FROM ITH_TIPEBARANG_KODE 
+														JOIN ITH_TICKET_HEADER ON ITH_TIPEBARANG_KODE.ticket_id = ITH_TICKET_HEADER.ticket_id
+														WHERE ITH_TIPEBARANG_KODE.ticket_id = '".$_GET['pid']."' GROUP BY ITH_TIPEBARANG_KODE.KODE_TIPEBARANG ASC");														
+										while($rvSCatShowSP = mysql_fetch_array($qvCekDataSP)){		
+															?>  												
+															<tr>												
+																<td width="7%">
+																	<center><?=$rvSCatShowSP["NO_PERMINTAAN"];?></center>
+																</td>
+																<td width="17%">
+																	<center><?=$rvSCatShowSP["ticket_createdate"];?></center>
+																</td>
+																
+																<td width="20%">
+																<center><?=$rvSCatShowSP["KODE_TIPEBARANG_SP"];?></center>
+																</td>														
+																<td width="20%">
+																<center><?=$rvSCatShowSP["NAMA_TIPEBARANG"];?></center>
+																</td>														
+															</tr>
+														<? } ?>										
+										
+
+									<? } ?>	
+													</tbody>
+												</table>	
+												</div>
+		<? } ?>	
+
+<? } ?>
+<? 
+	/* ############################################################################################################################################ */
+?>		

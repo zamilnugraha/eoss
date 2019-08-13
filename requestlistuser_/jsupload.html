@@ -1,0 +1,11 @@
+<html><body><script>
+function clearFileInputField(tagId) {
+    document.getElementById(tagId).innerHTML =
+        document.getElementById(tagId).innerHTML;
+    }
+</script>
+<div id="uploadFile_div">
+    <input type="file" class="fieldMoz" id="uploadFile" onkeydown="return false;" size="40" name="uploadFile"/>
+</div>
+<a onclick="clearFileInputField('uploadFile_div')" href="javascript:noAction();">Clear</a>
+</body></html>

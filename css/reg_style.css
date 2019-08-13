@@ -1,0 +1,121 @@
+body {
+	margin: 0;
+	padding: 0;
+}
+
+a {
+	color: #16afc1;
+	text-decoration: none;
+}
+
+a:hover {
+	color: #7a9f0b;
+}
+
+#container {
+	width: 900px;
+	margin: 0 auto;
+	border: solid 1px #999;
+	background-image: url(../images/bg2.png);
+	background-repeat: repeat-x;
+	background-position: left top;
+	padding: 5px;
+}
+
+#pagehead {
+	width: 100%;
+}
+
+#pagehead img.ith {
+	float: left;
+}
+
+#pagehead img.logo {
+	float: right;
+}
+
+#pagehead h1 {
+	padding-top: 10px;
+	padding-bottom: 5px;
+	font-family: "Segoe UI";
+	font-size: 16px;
+	font-weight: normal;
+	clear: both;
+	border-bottom: solid 2px #CCC;
+	color: #333;
+}
+
+#pagebody {
+	width: 100%;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12px;
+}
+
+#pagebody .left {
+	float: left;
+	width: 55%;
+}
+
+#pagebody .left table th {
+	font-size: 13px;
+	color: #333;
+	font-weight: bold;
+	text-align: right;
+}
+
+#pagebody .left table th h3 {
+	font-size: 14px;
+	color: #06F;
+	font-weight: bold;
+	text-align: left;
+	border-bottom: solid 1px #CCC;
+}
+
+#form_message {
+	float: right;
+	width: 40%;
+	margin-right: 20px;
+}
+
+
+#pagefoot {
+	width: 100%;
+	clear: both;
+}
+
+.tombol {
+	padding: 3px 8px;
+	border: 1px solid #CCC; 
+	background: #EFEFEF url(../images/bg_btn.png) 50% 50% repeat-x; 
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	font-weight: bold; 
+	color: #06F; 
+	outline: none;
+	cursor: pointer;
+}
+
+.lock {
+	background-image: url(../images/icons/lock.gif);
+	background-repeat: no-repeat;
+	background-position: right center;	
+	padding-right: 20px;
+}
+
+.input {
+	outline: none;
+	border: solid 1px #CCC;
+	background-color: #EFEFEF;
+	width: 200px;
+	max-width: 200px;
+}
+
+.input-wait {
+	background-image: url(../images/wait.gif);
+	background-position: right center;
+	background-repeat: no-repeat;
+}
+
+.flderror {border-width: 2px;background-color:#FFE2E2;}
+.error {color: #F00;}
+.valid {color: #090;}

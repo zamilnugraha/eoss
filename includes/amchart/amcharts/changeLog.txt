@@ -1,0 +1,12 @@
+2.0.5
+Changes in JavaScript version:
+Some minor bugs fixed.
+
+2.0.4
+Changes in JavaScript version:
+gridPosition property with possible values "start" and "middle" added to CategroryAxis;
+usePrefixes added to valueAxis;
+
+2.0.3
+Changes in JavaScript version:
+Mouse and text related problems which appeared in newly released IE9 were fixed.

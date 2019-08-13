@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<!-- saved from url=(0038)http://fiddle.jshell.net/r8fzD/5/show/ -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <title></title>
+  
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="googlebot" content="noindex, nofollow">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+  <script type="text/javascript" src="./dummy.js.download"></script>
+
+    <link rel="stylesheet" type="text/css" href="./result-light.css">
+
+      <script type="text/javascript" src="./jquery-1.9.1.js.download"></script>
+
+  <style id="compiled-css" type="text/css">
+      .dialog_display
+{
+   position: fixed;
+   top: 0;
+   right: 0;
+   bottom: 0;
+   left: 0;
+   height: 100%;
+   width: 100%;
+   margin: 0;
+   padding: 0;
+   background: #000000;
+   opacity: .15;
+   filter: alpha(opacity=15);
+   -moz-opacity: .15;
+   z-index: 101;
+   display: none;
+}
+.dialog
+{
+   display: none;
+   position: fixed;
+   width: 220px;
+   height: 130px;
+   top: 50%;
+   left: 50%;
+   margin-left: -190px;
+   margin-top: -100px;
+   background-color: #ffffff;
+   border: 2px solid #336699;
+   padding: 0px;
+   z-index: 102;   
+   font-size: 10pt;
+}
+.dialog_title
+{
+   border-bottom: solid 2px #336699;
+   background-color: #336699;
+   padding: 4px;
+   color: White;
+   font-weight:bold;
+}
+.dialog_title a
+{
+   color: White;
+   text-decoration: none;
+}
+.align_right
+{
+   text-align: right;
+}
+#dynamic{display:none;}
+  </style>
+
+
+  <!-- TODO: Missing CoffeeScript 2 -->
+
+  <script type="text/javascript">
+
+
+    window.onload=function(){
+      
+   $(document).ready(function ()
+   {
+      $("#btnShowModal").click(function (e)
+      {
+         ShowDialog(true);
+         e.preventDefault();
+      });
+
+      $("#btnClose").click(function (e)
+      {
+         HideDialog();
+         e.preventDefault();
+      });
+
+      $("#btnSubmit").click(function (e)
+      {
+         var brand = $("#brand1").val();        
+         $("#output").after($('#dynamic').clone().show()).after("<br/>" + brand);
+         HideDialog();
+         e.preventDefault();
+      });
+});
+
+   function ShowDialog(modal)
+   {
+      $("#overlay").show();
+      $("#dialog").show();
+
+      if (modal)
+      {
+         $("#overlay").unbind("click");
+      }
+      else
+      {
+         $("#overlay").click(function (e)
+         {
+            HideDialog();
+         });
+      }
+   }
+
+   function HideDialog()
+   {
+      $("#overlay").hide();
+      $("#dialog").hide();
+   } 
+
+    }
+
+</script>
+
+</head>
+<body>
+    <input type="button" id="btnShowModal" value="Add a name">
+        
+<div id="output"></div>
+    
+<div id="overlay" class="dialog_display" style="display: block;"></div>
+    
+<div id="dialog" class="dialog" style="display: block;">
+   <table style="width: 100%; border: 0px;" cellpadding="3" cellspacing="0">
+      <tbody><tr>
+         <td class="dialog_title">Type a name</td>
+         <td class="dialog_title align_right">
+            <a href="http://fiddle.jshell.net/r8fzD/5/show/#" id="btnClose">Close</a>
+         </td>
+      </tr>      
+      <tr>
+         <td colspan="2" style="padding-left: 15px;">
+            <b>&nbsp; </b>
+         </td>
+      </tr>     
+      <tr>
+         <td colspan="2" style="padding-left: 15px;">
+            <div id="brands">
+               <input id="brand1" name="brand" type="text" value=""> 
+               
+            </div>
+         </td>
+      </tr>
+      
+      <tr>
+         <td colspan="2" style="text-align: center;">
+            <input id="btnSubmit" type="button" value="Submit">
+         </td>
+      </tr>
+   </tbody></table>
+</div>
+
+<div id="dynamic">
+     
+         <span class="delete_icon">x</span><div id="output"></div>
+     
+     
+          <input id="firstaid" onclick="addtreatment();" type="checkbox">
+          FirstAid needed
+     
+     
+          <input class="sickbay" onclick="addtreatment();" type="checkbox">
+          Sent to Sick bay
+     
+     
+          <input class="ambulance" onclick="addtreatment();" type="checkbox">
+          Ambulance
+     
+</div>
+
+  
+  <script>
+    // tell the embed parent frame the height of the content
+    if (window.parent && window.parent.parent){
+      window.parent.parent.postMessage(["resultsFrame", {
+        height: document.body.getBoundingClientRect().height,
+        slug: "r8fzD"
+      }], "*")
+    }
+
+    // always overwrite window.name, in case users try to set it manually
+    window.name = "result"
+  </script>
+
+
+</body></html>

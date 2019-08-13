@@ -1,0 +1,35 @@
+.navigation  a,
+.navigation  a:hover,
+.navigation .disabled {
+	color: #fff;
+	text-decoration:none;
+	
+}
+
+.navigation  {
+	display: inline;
+	margin: auto;/*10px 10px 10px 220px; /*top right bottom left*/
+}
+
+.navigation  a,
+.navigation  a:hover,
+.navigation .disabled {
+	background-color: #6FB7E9;
+	border-radius: 2.5px;
+	cursor: pointer;
+	padding: 4px;
+	
+}
+
+.navigation  a:hover,
+.navigation .active a {
+	background-color: #3C8DC5;
+}
+
+.active{
+	background-color: #B3D8F3;
+	border-radius: 2.5px;
+	cursor: pointer;
+	padding: 4px;
+	
+}

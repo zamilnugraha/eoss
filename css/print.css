@@ -1,0 +1,46 @@
+body {
+	font-size: 12px;
+	font-family: Arial, Helvetica, sans-serif;
+	width: 20cm;
+}
+
+table.box {
+	border-collapse: collapse;.
+
+}
+
+table.box td {
+	border: solid 1px #000;
+}
+
+div.title {
+	font-size: 14px;
+	margin: 10px 0px;
+}
+
+span.tag {
+	font-weight: bold;
+}
+
+span.note {
+	font-style: italic;
+}
+
+.problem-desc {
+	min-height: 100px;
+}
+
+div.logos {
+	float: left;
+}
+
+div.ticketid {
+	display: inline;
+	float: right;
+	text-align:center;
+}
+
+span.barcode {
+	font-family: "Z: 3of 9 BarCode";
+	font-size: 16px;
+}

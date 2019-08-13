@@ -1,0 +1,114 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>amCharts Flex Components documentation</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link href="images/style.css" rel="stylesheet" type="text/css">
+</head>
+
+<body bgcolor="#FFFFFF">
+    <p><img src="images/logo.gif" /></p>
+    <hr>
+    <h2>A very short tutorial for those who don't like reading</h2>
+	<ul>
+	    <li>Copy <b>amcharts</b> folder to your working dir.</li>
+	    <li>Go to basicSamples folder and choose folder depending on a way you want to display charts.</li>
+	    <li>Open one of HTML files in your browser - you should see a chart.</li>
+	    <li>View source of the page or open this HTML file with text editor.</li>
+	    <li>Copy everything between <b>&lt;!-- amcharts script--&gt;</b> and <b>&lt;!-- end of amcharts script --&gt;</b></li>
+	    <li>Paste everything to your html/php/asp/etc file.</li>
+	    <li>Fix paths to scripts and other files.</li>
+	    <li>Open your file in browser - you should see the same chart.</li>
+	    <li>Now it's time to read all the tutorials and check the examples.</li>
+	</ul>
+    <hr>
+	<h2>A short introduction to v 2.X of amCharts bundle</h2>
+	Back in 2006 we released a very first version of our Flash charts, build using ActionScript 2.
+	During all these years we worked to improve them. Later we started building new charts using AS3,
+	and released our <a href="http://flex.amcharts.com">Flex charts</a>. Our next step intended to be
+	building new version of flash charts, based on features and architecture of Flex charts. But then
+	all the fight between Adobe and Apple started and all developers started asking us if we'll have JavaScript
+	(HTML5) version of our charts. Of course we will - we answered and started building JavaScript
+	charts also based on features and architecture of our Flex charts, as these charts were more new and advanced.
+	We build almost all main chart types using JavaScript and released v2 of our AmCharts bundle. So this bundle has:
+	<ul>
+		<li>v 1.X of our Flash charts</li>
+		<li>v 1.X of our JavaScript charts based on our Flex charts features.</li>
+		<li>a fallback mechanism which allows using data and settings files of Flash charts with JavaScript charts</li>
+	</ul>
+	Our next steps are:
+	<ul>
+	    <li>add remaining chart types (XY /Scatter and Radar / Polar) to JavaScript version (until summer of 2011)</li>
+	    <li>develop v 2.0 of our flash charts, based on Flex charts. (end of 2011)</li>
+	</ul>
+	<p>
+	So as you understand, our Flash and JavaScript charts are at different stages at the moment. If you were using our flash
+	charts before, and simply want to add JavaScript fallback, so that all iPad and other users who don't have flash installed
+	could see your charts, then all you need to do is to check how we do it (in basicSamples/flashOrJavaScript/
+	and samples/flashOrJavaScript/ folders) and adjust your scripts a bit. Some additional tweaking of settings might be needed and
+	some things (but not many) were deprecated in JavaScript version, but you will be able to achieve the same or almost the same
+	result.
+	</p>
+	<p>
+	In case you are starting from scratch, you should decide what your priority technology is. You can use Flash only or JavaScript
+	only, show Flash or JavaScript charts as a priority and the other technology as a backup.
+	Check <a href="http://blog.amcharts.com/2011/03/getting-started-with-amcharts-bundle-v2.html">this article</a> - it should help you
+	to decide. And check a table below with chart types, also a list of main new features.
+	</p>
+	<hr>
+	<h2>Supported chart types*</h2>
+	<table border="0" cellspacing="1" cellpadding="5">
+	    <tr><th>Chart type</th><th>Flash charts</th><th>JavaScript charts</th></tr>
+	    <tr><td>Pie / Donut</td><td>+</td><td>+</td></tr>
+	    <tr><td>Line / Area</td><td>+</td><td>+</td></tr>
+	    <tr><td>Step line</td><td>-</td><td>+</td></tr>
+	    <tr><td>Column / Bar</td><td>+</td><td>+</td></tr>
+	    <tr><td>Candlestick / OHLC</td><td>-</td><td>+</td></tr>
+	    <tr><td>YX / Bubble / Scatter</td><td>+</td><td>in progress</td></tr>
+	    <tr><td>Radar / Polar</td><td>+</td><td>in progress</td></tr>
+	</table>
+	* only main chart types are listed. We do not call stacked bar or 3D column a separate chart type.
+    <hr>
+	<h2>Main new features of JavaScript version</h2>
+	<ul>
+		<li>One chart type (Serial chart) can display all kinds of graphs - line, area, step line, column, bar, candlestick and ohlc.
+		You can easily switch one graph type to another, combine these graphs on one chart. You can rotate this serial chart by 90 degrees (So that category Axis becomes vertical).</li>
+	    <li>Scrolling / zooming / panning is available for all serial charts (only flash line chart has scrolling/zooming feature)</li>
+	    <li>Chart scrollbar can display a graph inside</li>
+	    <li>Ability to display date/time based data at irregular intervals</li>
+	    <li>Possibility to show/hide graphs/slices using legend (only flash line chart has this feature)</li>
+	    <li>Multiple value axes (flash line chart can have two value axes)</li>
+	    <li>Improved logarithmic scale</li>
+	    <li>and a lot of more...</li>
+	</ul>
+     <hr>
+ 	<h2>Documentation</h2>
+	<p>We are working on renewing of all the documentation and tutorials at the moment. Sorry if some information is not up-to date.</p>
+	<ul>
+		<li><a href="http://www.amcharts.com/docs/v.2/bundle/">amCharts bundle documentation</a></li>
+		<li><a href="http://www.amcharts.com/docs/v.2/bundle/javascript_reference">JavaScript reference</a></li>
+	</ul>
+    <hr>
+	<h2>Visual Editor</h2>
+ 	In case you are using flash or JavaScript charts with a fallback mechanism, use our <a href="http://extra.amcharts.com/editor">Visual Editor</a> - it will help to produce data and settings files without writing code.
+    <hr>
+	<h2>Examples</h2>
+	Check our examples in <b>basicSamples</b> and <b>samples</b> folders. They will provide more usefull information than any tutorial!
+    <hr>
+	<h2>Our new tutorials</h2>
+	<ul>
+		<li><a href="http://blog.amcharts.com/2011/03/getting-started-with-amcharts-bundle-v2.html">Getting started with amCharts bundle</a></li>
+		<li><a href="http://blog.amcharts.com/2011/03/amcharts-javascript-tutorials-part-1.html">Simple Column Chart with JavaScript charts</a></li>
+        <li><a href="http://blog.amcharts.com/2011/03/amcharts-javascript-tutorials-part-2.html">Loading External data with JavaScript charts</a></li>
+        <li><a href="http://blog.amcharts.com/2011/03/amcharts-javascript-tutorials-part-3.html">Parsing dates and styling up the chart with JavaScript charts.</a></li>
+	</ul>
+	<hr>
+    <h2>Support forums</h2>
+	In case you have a question, go to our <a href="http://www.amcharts.com/forum/">support forums</a>. You'll find a lot of information there, and if you won't - you can always ask.
+	<hr>
+	<h2>Follow us</h2>
+	Follow us on <a href="http://twitter.com/amcharts">Twitter</a> or <a href="http://feeds.feedburner.com/amcharts">subscribe to our blog</a> - all the information about updates, new tutorials can be found there.
+	<hr>
+	<h2>Good luck!</h2>
+</body>
+</html>
